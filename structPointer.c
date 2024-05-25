@@ -1,44 +1,39 @@
+// using memory allocation with structures
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-struct Date{
-  int date;
-  char month[10];
+struct date{
+  int day;
+  char month[15];
   int year;
 };
-struct Events{
+struct Event{
   char name[30];
   char type[30];
+  float cost;
   float duration;
-  float expenses;
-  struct Date scheduleDate;
+  struct date d;
 };
 int main()
 {
   int n;
   scanf("%d",&n);
-  struct Events *events=(struct Events*)malloc(n*sizeof(struct Events));
+  struct Event *event[n];
   for(int i=0;i<n;i++){
-    scanf("%s",events[i].name);
-    scanf("%s",events[i].type);
-    scanf("%f",&events[i].duration);
-    scanf("%f",&events[i].expenses);
-    scanf("%d %s %d",&events[i].scheduleDate.date,events[i].scheduleDate.month, &events[i].scheduleDate.year);
+    event[i] =(struct Event *)malloc(sizeof(struct Event));
+    scanf("%s",event[i]->name);
+    scanf("%s",event[i]->type);
+    scanf("%f",&event[i]->cost);
+    scanf("%f",&event[i]->duration);
+    scanf("%d %s %d",&event[i]->d.day,event[i]->d.month,&event[i]->d.year);
   }
+  printf("Event Details:\n");
   for(int i=0;i<n;i++){
-    printf("Name: %s",events[i].name);
-    printf("\n");
-    printf("Type: %s",events[i].type);
-    printf("\n");
-    printf("Duration: %.1f hrs",events[i].duration);
-    printf("\n");
-    printf("Expenses: Rs %.2f",events[i].expenses);
-    printf("\n");
-    printf("Date: %d %s %d",events[i].scheduleDate.date,events[i].scheduleDate.month, events[i].scheduleDate.year);
-    printf("\n");
-    printf("\n");
+    printf("Name:%s\n",event[i]->name);
+    printf("Type:%s\n",event[i]->type);
+    printf("Cost:$%.2f\n",event[i]->cost);
+    printf("Duration:%.1f hrs\n",event[i]->duration);
+    printf("Event Date:%d %s %d",event[i]->d.day,event[i]->d.month,event[i]->d.year);
   }
-  return 0;
 }
 //malloc declaration -> int *ptr1 = (int*)malloc(n*sizeof(int));
 //calloc decleration -> int *ptr2 = (int*)calloc(n,sizeof(int));
@@ -46,13 +41,13 @@ int main()
 
 /*Output:
 
-Name: Hehe
+Name: Hehe1
 Type: Comedy
 Duration: 3.5 hrs
 Epenses: Rs 10000.00
 Date: 10 january 2024
 
-Name: Hoho
+Name: Hehe2
 Type: Musical
 Duration: 2.0 hrs
 Epenses: Rs 150000.00
