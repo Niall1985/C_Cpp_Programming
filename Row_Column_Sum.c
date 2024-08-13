@@ -70,3 +70,25 @@ int main(){
 // Sum of Row 2, Column 2: 27 
 // Sum of Row 3, Column 3: 11 
 // Sum of Row 4, Column 4: 15 
+
+// 3 3
+// 1
+// 2
+// 3
+// 4
+// 5
+// 6
+// 7
+// 8
+// 9
+
+// Output:
+
+// Row sum
+// 6 15 24 
+// Column sum
+// 12 15 18 
+// Row+Col sum
+// Sum of Row 1, Column 1: 18 
+// Sum of Row 2, Column 2: 30 
+// Sum of Row 3, Column 3: 42 
