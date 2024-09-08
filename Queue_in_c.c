@@ -77,3 +77,39 @@ int main(){
     }
     
 }
+
+
+
+
+// input
+// 1 101
+// 1 202
+// 1 203
+// 1 204
+// 1 205
+// 1 206
+// 3
+// 2
+// 3
+// 4
+
+// output:
+// Enter your choice (1: Enqueue, 2: Dequeue, 3: Display, 4: Exit): Enter ticket ID to enqueue: Helpdesk Ticket ID 101 is enqueued.
+
+// Enter your choice (1: Enqueue, 2: Dequeue, 3: Display, 4: Exit): Enter ticket ID to enqueue: Helpdesk Ticket ID 202 is enqueued.
+
+// Enter your choice (1: Enqueue, 2: Dequeue, 3: Display, 4: Exit): Enter ticket ID to enqueue: Helpdesk Ticket ID 203 is enqueued.
+
+// Enter your choice (1: Enqueue, 2: Dequeue, 3: Display, 4: Exit): Enter ticket ID to enqueue: Helpdesk Ticket ID 204 is enqueued.
+
+// Enter your choice (1: Enqueue, 2: Dequeue, 3: Display, 4: Exit): Enter ticket ID to enqueue: Helpdesk Ticket ID 205 is enqueued.
+
+// Enter your choice (1: Enqueue, 2: Dequeue, 3: Display, 4: Exit): Enter ticket ID to enqueue: Queue is full. Cannot enqueue.
+
+// Enter your choice (1: Enqueue, 2: Dequeue, 3: Display, 4: Exit): Helpdesk Ticket IDs in the queue are: 101 202 203 204 205 
+
+// Enter your choice (1: Enqueue, 2: Dequeue, 3: Display, 4: Exit): Dequeued Helpdesk Ticket ID 101
+
+// Enter your choice (1: Enqueue, 2: Dequeue, 3: Display, 4: Exit): Helpdesk Ticket IDs in the queue are: 202 203 204 205 
+
+// Enter your choice (1: Enqueue, 2: Dequeue, 3: Display, 4: Exit): Exiting the program
