@@ -34,17 +34,16 @@ int dequeue(){
 
 void sortByFrequency() {
     int count[MAX] = {0}; 
-    int sortedQueue[MAX];   
 
-    for(i = front; i <= rear; i++){
+    for(int i = front; i <= rear; i++){
         count[queue[i]]++;
     }
 
-    for(i = front; i < rear; i++){
-        for(j = i + 1; j <= rear; j++){
+    for(int i = front; i < rear; i++){
+        for(int j = i + 1; j <= rear; j++){
             if(count[queue[i]] < count[queue[j]] || 
                (count[queue[i]] == count[queue[j]] && queue[i] < queue[j])) {
-                temp = queue[i];
+                int temp = queue[i];
                 queue[i] = queue[j];
                 queue[j] = temp;
             }
