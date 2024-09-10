@@ -107,8 +107,8 @@ void displayDeque() {
     }
 
     printf("Deque elements are: ");
-    int i = front;
-    while (1) {
+    int i = front; 
+    while (i != rear) { //while(1);
         printf("%d ", deque[i]);
         if (i == rear)
             break;
