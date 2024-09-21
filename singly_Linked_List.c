@@ -70,3 +70,68 @@ int main(){
     printf("After deleting node after %d: ",del);
     display(head);
 }
+
+
+
+
+//insert at index
+// You are using GCC
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct node{
+    int data;
+    struct node* next;
+};
+
+struct node *head = NULL;
+struct node *current = NULL;
+
+void print(){
+    struct node* p = head;
+    while(p != NULL){
+        printf("%d ", p->data);
+        p = p->next;
+    }
+}
+
+
+void insertBegining(int data){
+    struct node *lk = (struct node*)malloc(sizeof(struct node));
+    lk-> data = data;
+    lk->next = head;
+    head=lk;
+}
+
+void insertatpos(int index, int data){
+    struct node *lk = (struct node*)malloc(sizeof(struct node));
+    lk->data=data;
+    if(index == 0){
+        lk->next = head;
+        head = lk;
+        return;
+    }
+    
+    struct node* temp = head;
+    for(int i=0; temp != NULL & i<index-1; i++){
+        temp = temp->next;
+    }
+    lk->next = temp->next;
+    temp->next = lk;
+}
+
+
+int main(){
+    int n, data;
+    scanf("%d",&n);
+    for(int i = 0 ; i < n ; i++){
+        scanf("%d",&data);
+        insertBegining(data);
+    }
+    
+    int element;
+    scanf("%d",&element);
+    insertatpos(1, element);
+    print();
+}
