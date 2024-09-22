@@ -135,3 +135,72 @@ int main(){
     insertatpos(1, element);
     print();
 }
+
+
+
+***********************************************************************************
+
+// Print unique elements in a linkedList
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct node{
+    int data;
+    struct node *next;
+};
+
+struct node *head = NULL;
+struct node *current  = NULL;
+
+void print(){
+    struct node *p = head;
+    while(p != NULL){
+        struct node *q = head;
+        int isUnique = 1;
+        while(q != p){
+            if(q->data == p->data){
+                isUnique=0;
+                break;
+            }
+            q=q->next;
+        }
+        if(isUnique){
+            printf("%d ",p->data);
+        }
+        p = p->next;
+    }
+    printf("\n");
+}
+
+void insertAtEnd(int data){
+    struct node *lk = (struct node*)malloc(sizeof(struct node));
+    lk->data = data;
+    lk->next = NULL;
+    if(head == NULL){
+        head=lk;
+        return;
+    }
+    
+    struct node *list = head;
+    while(list->next != NULL)
+        list = list->next;
+    list->next = lk;
+}
+
+
+int main(){
+    int T;
+    scanf("%d", &T);
+    for(int i = 0 ; i < T ; i++){
+        int n;
+        scanf("%d",&n);
+        int data;
+        for(int j = 0 ; j < n ;j++){
+            scanf("%d",&data);
+            insertAtEnd(data);
+        }
+        print();
+        head=NULL;
+    }
+}
