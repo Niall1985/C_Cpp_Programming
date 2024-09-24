@@ -43,7 +43,7 @@ void deleteEnd(){
   while(list->link->link != NULL){ //iterate till the 2nd last node
     list = list->link;
   }
-  list->link - NULL; //set the second last node to NULL to indicate end of linkedList
+  list->link = NULL; //set the second last node to NULL to indicate end of linkedList
 }
 
 void deleteNode(int key){
