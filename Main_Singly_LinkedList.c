@@ -35,7 +35,7 @@ void insertAfterNode(struct node *list, int data){ //contains the node after whi
 }
 
 void deleteBegin(){
-  head = head->next;
+  head = head->link;
 }
 
 void deleteEnd(){
