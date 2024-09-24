@@ -62,7 +62,7 @@ void deleteNode(int key){
   }
   
   if(temp == NULL)return;
-  prev->link = temp->link; ..remove the node
+  prev->link = temp->link; //remove the node
 }
 
 
