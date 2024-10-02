@@ -9,20 +9,67 @@ struct node {
 
 struct node *createNode(int data){
   struct node *temp = (struct node*)malloc(sizeof(struct node));
-  temp->data = data;
+  temp->item = data;
   temp->left = temp->right = NULL;
   return temp;
 }
 
 void preorder(struct node *root){
-  if(root == NULL);
+  if(root == NULL)
   return;
-  printf("%d ", root->data);
+  printf("%d ", root->item);
   preorder(root->left);
   preorder(root->right);
 }
 
+
+void inorder(struct node *root){
+  if(root==NULL)
+  return;
+  inorder(root->left);
+  printf("%d ",root->item);
+  inorder(root->right);
+}
+
+void postorder(struct node *root){
+  if(root==NULL)
+  return;
+  postorder(root->left);
+  postorder(root->right);
+  printf("%d ",root->item);
+}
+
 int main()
 {
-    
+    struct node *root = createNode(1);
+    root->left= createNode(2);
+    root->right = createNode(3);
+    root->left->left = createNode(4);
+    root->left->right = createNode(5);
+    printf("preorder\n");
+    preorder(root);
+    printf("\n");
+    printf("Inorder\n");
+    inorder(root);
+    printf("\n");
+    printf("Postorder\n");
+    postorder(root);
+    printf("\n");
 }
+
+// input:
+
+//     1
+//    / \
+//   2   3
+//  / \
+// 4   5
+
+// output:
+
+// preorder
+// 1 2 4 5 3 
+// Inorder
+// 4 2 5 1 3 
+// Postorder
+// 4 5 2 3 1 
