@@ -307,3 +307,173 @@ int main(){
     
     inorder(root);
 }
+
+
+
+
+
+// Jay is studying binary search trees (BSTs) as part of his computer science curriculum. He is particularly interested in understanding operations like insertion and deletion in a BST.
+
+
+
+// Jay wants to write a program that takes a sequence of characters as input, constructs a BST using those characters, deletes the minimum element from the BST, and then outputs the elements of the tree in sorted order.
+
+
+
+// Help Jay by designing a program that achieves this.
+
+// Input format :
+// The first line of input contains an integer n, denoting the number of characters to be inserted into the BST.
+
+// The second line contains n space-separated characters, each character representing a node to be inserted into the BST.
+
+// Output format :
+// The output displays a single line displaying the space-separated characters of the BST in sorted order after deleting the minimum element in the format:
+
+// "Inorder traversal after deleting the minimum element:"
+
+// "[char1] [char2] ...[char_n]"
+
+
+
+// Refer to the sample output for the formatting specifications.
+
+// Code constraints :
+// The given test cases will fall under the following constraints:
+
+// 1 ≤ n ≤ 10
+
+// Characters are uppercase English alphabets.
+
+// All characters in the input are distinct.
+
+// Sample test cases :
+// Input 1 :
+// 6
+// K J M V H F
+// Output 1 :
+// Inorder traversal after deleting the minimum element:
+// H J K M V 
+// Input 2 :
+// 4
+// T B C A
+// Output 2 :
+// Inorder traversal after deleting the minimum element:
+// B C T 
+
+
+
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node{
+    char data;
+    struct node *left;
+    struct node *right;
+};
+
+struct node *newNode(char data){
+    struct node *temp = (struct node*)malloc(sizeof(struct node));
+    temp->data = data;
+    temp->left = NULL;
+    temp->right = NULL;
+    return temp;
+}
+
+
+struct node *insert(struct node *root, char data){
+    if(root == NULL){
+        return newNode(data);
+    }
+    
+    if(data<root->data){
+        root->left = insert(root->left, data);
+    }
+    else if(data>root->data){
+        root->right = insert(root->right, data);
+    }
+    return root;
+}
+
+struct node *minValueNode(struct node *node) {
+    struct node *current = node;
+  
+    while (current && current->left != NULL) {
+        current = current->left;
+    }
+    return current;
+}
+
+
+struct node *deleteNode(struct node *temp, char key){
+    if(temp == NULL){
+        return temp;
+    }
+    
+    if(key < temp->data){
+        temp->left = deleteNode(temp->left, key);
+    }
+    else if(key>temp->data){
+        temp->right = deleteNode(temp->right, key);
+    }
+    else{
+        if(temp->left == NULL && temp->right == NULL){
+            free(temp);
+            return NULL;
+        }
+        
+        if(temp->left == NULL){
+            struct node *root = temp->right;
+            free(temp);
+            return root;
+        }
+        else if(temp->right == NULL){
+            struct node *root = temp->left;
+            free(temp);
+            return root;
+        }
+        
+        struct node *root = minValueNode(temp->right);
+            temp->data = root->data;
+            temp->right = deleteNode(temp->right, root->data);
+        }
+    return temp;
+}
+
+void inorder(struct node *root){
+    if(root == NULL){
+        return;
+    }
+    
+    inorder(root->left);
+    printf("%c ", root->data);
+    inorder(root->right);
+}
+int main(){
+    struct node *root = NULL;
+    int n;
+    char data;
+    scanf("%d", &n);
+    for(int i = 0 ; i < n ; i++){
+        scanf(" %c", &data);
+        root = insert(root, data);
+    }
+    struct node *minNode = minValueNode(root);
+    root = deleteNode(root, minNode->data);
+   
+    printf("Inorder traversal after deleting the minimum element:\n");
+    inorder(root);
+}
+
+
+
+
+
+
+
+
+
+
