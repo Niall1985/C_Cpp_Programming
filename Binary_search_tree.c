@@ -473,7 +473,214 @@ int main(){
 
 
 
+// Problem Statement
 
 
+
+// Emily is studying binary search trees (BST). She wants to write a program that inserts characters into a BST and then finds and prints the minimum and maximum values.
+
+
+
+// Guide her with the program.
+
+// Input format :
+// The first line of input consists of an integer N, representing the number of values to be inserted into the BST.
+
+// The second line consists of N space-separated characters.
+
+// Output format :
+// The first line of output prints "Minimum value: " followed by the minimum value of the given inputs.
+
+// The second line prints "Maximum value: " followed by the maximum value of the given inputs.
+
+
+
+// Refer to the sample outputs for formatting specifications.
+
+// Code constraints :
+// The input values will be upper-case characters.
+
+// Sample test cases :
+// Input 1 :
+// 5
+// Z E W T Y
+// Output 1 :
+// Minimum value: E
+// Maximum value: Z
+// Input 2 :
+// 7
+// S P O R T Y U
+// Output 2 :
+// Minimum value: O
+// Maximum value: Y
+
+
+// You are using GCC
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node {
+    char data;
+    struct node *left, *right;
+};
+
+struct node* newNode(char data) {
+    struct node* temp = (struct node*)malloc(sizeof(struct node));
+    temp->data = data;
+    temp->left = temp->right = NULL;
+    return temp;
+}
+
+struct node* insert(struct node* node, char data) {
+    if (node == NULL)
+        return newNode(data);
+    if (data < node->data)
+        node->left = insert(node->left, data);
+    else if (data > node->data)
+        node->right = insert(node->right, data);
+    return node;
+}
+
+struct node* minValueNode(struct node* node) {
+    struct node* current = node;
+    while (current && current->left != NULL)
+        current = current->left;
+    return current;
+}
+
+struct node* maxValueNode(struct node* node) {
+    struct node* current = node;
+    while (current && current->right != NULL)
+        current = current->right;
+    return current;
+}
+
+int main() {
+    int n;
+    char data;
+    struct node* root = NULL;
+    
+    scanf("%d", &n);
+    for (int i = 0; i < n; i++) {
+        scanf(" %c", &data);
+        root = insert(root, data);
+    }
+
+    struct node *minNode = minValueNode(root);
+    printf("Minimum value: %c\n", minNode->data);
+    
+    struct node *maxNode = maxValueNode(root);
+    printf("Maximum value: %c", maxNode->data);
+
+    return 0;
+}
+
+
+
+
+
+// Given a Binary Search Tree (BST) and an integer k, your task is to implement the kthSmallest function. The function should take the root of the BST and an integer k as input and return the k-th smallest element in the BST.
+
+// Input format :
+// The first line of input consists of a sequence of integers representing the elements of the BST. The input is terminated by -1.
+
+// The second line consists of an integer k, representing the position of the desired smallest element.
+
+// Output format :
+// The output prints a single integer, which is the kth smallest element in the BST.
+
+
+
+// Refer to the sample output for formatting specifications.
+
+// Code constraints :
+// 1 <= val <= 100
+
+// 1 <= k <= number of elements in the BST
+
+// Sample test cases :
+// Input 1 :
+// 20 8 22 4 12 10 14 -1
+// 3
+// Output 1 :
+// 10
+// Input 2 :
+// 20 8 4 12 10 14 22 -1
+// 4
+// Output 2 :
+// 12
+
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node{
+    int data;
+    struct node *left, *right;
+};
+
+struct node *newNode(int data){
+    struct node *temp = (struct node *)malloc(sizeof(struct node));
+    temp->data = data;
+    temp->left = NULL;
+    temp->right = NULL;
+    return temp;
+}
+
+struct node *insert(struct node *root, int data){
+    if(root == NULL){
+        return newNode(data);
+    }
+    
+    if(data<root->data){
+        root->left = insert(root->left, data);
+    }
+    else if(data>root->data){
+        root->right = insert(root->right, data);
+    }
+    return root;
+}
+
+void kthmin(struct node *root, int k, int *count, int *result){
+    if(root == NULL || *result != -1){
+        return;
+    }
+    
+    kthmin(root->left, k, count, result);
+    (*count)++;
+    if(*count == k){
+        *result = root->data;
+        return;
+    }
+    kthmin(root->right, k, count, result);
+}
+
+int main() {
+    int data;
+    struct node *root = NULL;
+    
+    while (1) {  
+        scanf("%d", &data);
+        if (data == -1) {  
+            break;
+        }
+        root = insert(root, data);
+    }
+
+    int k;
+    scanf("%d", &k);
+
+    int count = 0;
+    int result = -1;
+    kthmin(root, k, &count, &result);
+
+    if (result != -1) {
+        printf("%d\n", result);
+    }
+
+    return 0;
+}
 
 
