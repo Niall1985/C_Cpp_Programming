@@ -529,3 +529,232 @@ int main() {
 
     return 0;
 }
+
+
+
+// Binary Tree Maximum Path Sum
+
+
+
+// A path in a binary tree is a sequence of nodes where each pair of adjacent nodes in the sequence has an edge connecting them. A node can only appear in the sequence at most once. Note that the path does not need to pass through the root.
+
+
+
+// The path sum of a path is the sum of the node's values in the path.
+
+// Given the root of a binary tree, return the maximum path sum of any non-empty path.
+
+
+
+// Example1:
+
+// Input Format: Enter the value for the Root, Left subtree, Right subtree 
+
+// The first line of the input is the root node.
+
+// 7
+
+// Left subtree 7:5
+
+// Left subtree 5:-1
+
+// Right subtree 5:-1
+
+// Right subtree 7:8
+
+// Left subtree 8:9
+
+// Left subtree 9:-1
+
+// Right subtree 9:-1
+
+// Right subtree 8:1
+
+// Left subtree 1:-1
+
+// Right subtree 1:-1
+
+// Output:
+
+// Maximum Path Sum 29
+
+// Binary Tree
+
+//     7
+
+//    / \
+
+//    5  8
+
+//   / \  \
+
+//  -1  -1  1
+
+//      / \
+
+//     -1 -1
+
+
+
+// Example2:
+
+// Input: Enter the value for the Root, Left subtree, Right subtree 
+
+// The first line of the input is the root node.
+
+//  -10
+
+// Left subtree -10:9
+
+// Left subtree 9:-1
+
+// Right subtree 9:-1
+
+// Right subtree -10:20
+
+// Left subtree 20:15
+
+// Left subtree 15:-1
+
+// Right subtree 15:-1
+
+// Right subtree 20:7
+
+// Left subtree 7:-1
+
+// Right subtree 7:-1
+
+// Output: 
+
+// Maximum Path Sum 42
+
+// Explanation: The optimal path is 15 -> 20 -> 7 with a path sum of 15 + 20 + 7 = 42.
+
+// Binary Tree
+
+//    -10
+
+//   /  \
+
+//   9   20
+
+//     /  \
+
+//    15   7
+
+
+
+// Note: Root value (or -1 for null)
+
+// Input format :
+// The first line of the input consists of the root node.
+
+// The following inputs consist of the Left subtree and right subtree.
+
+
+
+// Note: if there is no child node input -1 for null.
+
+// Output format :
+// The output displays the Maximum Path Sum.
+
+// Code constraints :
+// The number of nodes in the tree is in the range [1, 3 * 104].
+
+// -1000 <= Node.val <= 1000
+
+// Sample test cases :
+// Input 1 :
+// 7 5 -1 -1 8 9 -1 -1 1 -1 -1
+// Output 1 :
+// Maximum Path Sum 29
+// Input 2 :
+// -10 9 -1 -1 20 15 -1 -1 7 -1 -1
+// Output 2 :
+// Maximum Path Sum 42
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+// Definition for a binary tree node
+typedef struct TreeNode {
+    int val;
+    struct TreeNode *left;
+    struct TreeNode *right;
+} TreeNode;
+
+// Function prototypes
+TreeNode* createNode(int val);
+TreeNode* buildTree();
+int maxPathSum(TreeNode* root, int* maxSum);
+int findMaxPath(TreeNode* node, int* maxSum);
+
+int main() {
+    TreeNode* root = buildTree();
+    int maxSum = INT_MIN;
+    maxPathSum(root, &maxSum);
+    printf("Maximum Path Sum %d\n", maxSum);
+    return 0;
+}
+
+// Create a new tree node
+TreeNode* createNode(int val) {
+    TreeNode* node = (TreeNode*)malloc(sizeof(TreeNode));
+    node->val = val;
+    node->left = NULL;
+    node->right = NULL;
+    return node;
+}
+
+// Build the tree from input
+TreeNode* buildTree() {
+    int rootValue;
+    scanf("%d", &rootValue);
+    if (rootValue == -1) {
+        return NULL;
+    }
+
+    TreeNode* root = createNode(rootValue);
+    root->left = buildTree();
+    root->right = buildTree();
+
+    return root;
+}
+
+// Compute the maximum path sum in the binary tree
+int maxPathSum(TreeNode* root, int* maxSum) {
+    if (root == NULL) {
+        return 0;
+    }
+
+    int leftSum = findMaxPath(root->left, maxSum);
+    int rightSum = findMaxPath(root->right, maxSum);
+
+    int currentPathSum = root->val + (leftSum > 0 ? leftSum : 0) + (rightSum > 0 ? rightSum : 0);
+
+    if (currentPathSum > *maxSum) {
+        *maxSum = currentPathSum;
+    }
+
+    return root->val + (leftSum > rightSum ? leftSum : rightSum);
+}
+
+// Recursive function to find the maximum path sum starting from a given node
+int findMaxPath(TreeNode* node, int* maxSum) {
+    if (node == NULL) {
+        return 0;
+    }
+
+    int leftSum = findMaxPath(node->left, maxSum);
+    int rightSum = findMaxPath(node->right, maxSum);
+
+    int currentPathSum = node->val + (leftSum > 0 ? leftSum : 0) + (rightSum > 0 ? rightSum : 0);
+
+    if (currentPathSum > *maxSum) {
+        *maxSum = currentPathSum;
+    }
+
+    return node->val + (leftSum > rightSum ? leftSum : rightSum);
+}
+
