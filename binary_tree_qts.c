@@ -368,3 +368,164 @@ int main() {
 
     return 0;
 }
+
+
+
+
+
+// Problem Statement
+
+
+
+// Sakshi is given a binary tree and her task is to generate its zig-zag level order traversal. Help her with a suitable program.
+
+
+
+// Example 1:
+
+// Input:
+
+
+
+// Output:
+
+// 1 3 2 4 5 6 7
+
+// Input format :
+// The first line consists of an integer n, representing the number of elements (nodes) in the binary tree.
+
+// The second line contains n space-separated integers representing the values of the nodes in level order.
+
+// Output format :
+// The output prints a single line containing the Zig-Zag Level Order Traversal of the Binary Tree.
+
+
+
+// Refer to the sample output for the formatting specifications.
+
+// Code constraints :
+// In this scenario, the given test cases will fall under the following constraints:
+
+// 1 ≤ n ≤ 20
+
+// 1 ≤ node values ≤ 100
+
+// Sample test cases :
+// Input 1 :
+// 5
+// 18 59 20 83 88
+// Output 1 :
+// 18 20 59 83 88 
+// Input 2 :
+// 7
+// 1 2 3 4 5 6 7
+// Output 2 :
+// 1 3 2 4 5 6 7 
+
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node {
+    int data;
+    struct node *left;
+    struct node *right;
+};
+
+struct node *newNode(int data) {
+    struct node *temp = (struct node*)malloc(sizeof(struct node));
+    temp->data = data;
+    temp->left = NULL;
+    temp->right = NULL;
+    return temp;
+}
+
+struct node *insert(struct node *root, int data) {
+    struct node *new_node = newNode(data);
+    if (root == NULL) {
+        return new_node;
+    }
+    
+    struct node *queue[100];
+    int front = 0, rear = 0;
+    queue[rear++] = root;
+
+    while (front < rear) {
+        struct node *temp = queue[front++];
+        
+        if (temp->left == NULL) {
+            temp->left = new_node;
+            break;
+        } else {
+            queue[rear++] = temp->left;
+        }
+        
+        if (temp->right == NULL) {
+            temp->right = new_node;
+            break;
+        } else {
+            queue[rear++] = temp->right;
+        }
+    }
+    
+    return root;
+}
+
+void zigzagTraversal(struct node *root) {
+    if (root == NULL) return;
+
+    struct node *stack1[100], *stack2[100]; 
+    int top1 = -1, top2 = -1;
+
+  
+    stack1[++top1] = root;
+
+
+    while (top1 >= 0 || top2 >= 0) {
+    
+        while (top1 >= 0) {
+            struct node *temp = stack1[top1--];
+            printf("%d ", temp->data);
+
+            if (temp->left) {
+                stack2[++top2] = temp->left;
+            }
+            if (temp->right) {
+                stack2[++top2] = temp->right;
+            }
+        }
+
+        while (top2 >= 0) {
+            struct node *temp = stack2[top2--];
+            printf("%d ", temp->data);
+
+            if (temp->right) {
+                stack1[++top1] = temp->right;
+            }
+            if (temp->left) {
+                stack1[++top1] = temp->left;
+            }
+        }
+    }
+}
+
+int main() {
+    struct node *root = NULL;
+    
+    int n, data;
+
+    scanf("%d", &n);
+   
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &data);
+        root = insert(root, data);
+    }
+
+  
+    zigzagTraversal(root);
+    printf("\n");
+
+    return 0;
+}
