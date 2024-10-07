@@ -241,3 +241,130 @@ int main(){
     reversedinorder(root);
     
 }
+
+
+// Problem Statement
+
+
+
+// A city's botanical garden is hosting a special event where they want to arrange a set of flower beds in a hierarchical structure and display them in a specific order to create a visual spiral effect.
+
+
+
+// The event organizers have a data structure representing the hierarchy of flower beds, where each node represents a flower bed, and each node can have at most two children representing sub-flower beds. They want to print the arrangement of these flower beds-level by level but in a spiral order: the first level from left to right, the next level from right to left, and so on.
+
+// Input format :
+// The input consists of seven space-separated integers representing the flower beds in the following order:
+
+// a - the root flower bed.
+
+// a1 - the left child of the root.
+
+// b - the right child of the root.
+
+// b1 - the left child of a1.
+
+// c - the right child of a1.
+
+// c1 - the left child of b.
+
+// d - the right child of b.
+
+// Output format :
+// The output is a single line of integers representing the flower beds displayed in a spiral order, separated by spaces.
+
+
+
+// Refer to the sample output for the formatting specifications.
+
+// Code constraints :
+// The input consists of 7 integers.
+
+// The binary tree is not empty.
+
+// 1 ≤ elements ≤ 100
+
+// Sample test cases :
+// Input 1 :
+// 1 2 3 7 6 5 4
+// Output 1 :
+// 1 2 3 4 5 6 7 
+// Input 2 :
+// 2 3 4 5 6 7 1
+// Output 2 :
+// 2 3 4 1 7 6 5 
+
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int value;
+    struct Node* left;
+    struct Node* right;
+};
+
+
+struct Node* createNode(int value) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->value = value;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+
+
+void spiralOrderTraversal(struct Node* root) {
+    if (root == NULL) return;
+
+    struct Node* queue[100]; 
+    int front = -1, rear = -1;
+    int leftToRight = 1; 
+
+    queue[++rear] = root;
+    
+    while (front < rear) {
+        int levelSize = rear - front;
+        int currentLevel[100]; 
+        int index = 0;
+
+     
+        for (int i = 0; i < levelSize; i++) {
+            struct Node* node = queue[++front]; 
+            currentLevel[index++] = node->value; 
+
+            if (node->left) queue[++rear] = node->left;
+            if (node->right) queue[++rear] = node->right;
+        }
+        if (leftToRight) {
+            for(int i = index - 1; i >= 0; i--) {
+                printf("%d ", currentLevel[i]);
+            }
+        } else {
+            for (int i = 0; i < index; i++) {
+                printf("%d ", currentLevel[i]);
+            }
+        }
+        leftToRight = !leftToRight;
+    }
+}
+
+int main() {
+    int a, a1, b, b1, c, c1, d;
+
+    scanf("%d %d %d %d %d %d %d", &a, &a1, &b, &b1, &c, &c1, &d);
+
+    struct Node* root = createNode(a);
+    root->left = createNode(a1);
+    root->right = createNode(b);
+    root->left->left = createNode(b1);
+    root->left->right = createNode(c);
+    root->right->left = createNode(c1);
+    root->right->right = createNode(d);
+
+    spiralOrderTraversal(root);
+
+    return 0;
+}
