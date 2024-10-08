@@ -759,3 +759,53 @@ int findMaxPath(TreeNode* node, int* maxSum) {
 }
 
 
+//***********************************************************************************************************************************************************************
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node{
+  int data;
+  struct node *left;
+  struct node *right;
+};
+
+struct node *newNode(int data){
+  struct node *temp = (struct node*)malloc(sizeof(struct node));
+  temp->data = data;
+  temp->left = NULL;
+  temp->right = NULL;
+  return temp;
+}
+
+struct node *insertLevelOrder(int arr[], struct node *root, int i, int n){
+  if(i<n){
+    struct node *temp = newNode(arr[i]);
+    root = temp;
+    root->left = insertLevelOrder(arr, root->left, 2*i + 1, n);
+    root->right = insertLevelOrder(arr, root->right, 2*i + 2, n);
+  }
+  return root;
+}
+
+void inorder(struct node *root){
+  if(root == NULL){
+    return;
+  }
+  inorder(root->left);
+  printf("%d ", root->data);
+  inorder(root->right);
+}
+
+
+int main(){
+  struct node *root = NULL;
+  int n;
+  scanf("%d", &n);
+  int arr[n];
+  for(int i = 0 ; i < n ; i++){
+    scanf("%d", &arr[i]);
+  }
+  root = insertLevelOrder(arr, root, 0, n);
+  inorder(root);
+}
