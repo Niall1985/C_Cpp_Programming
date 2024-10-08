@@ -1,3 +1,117 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node{
+  int data;
+  struct node *left;
+  struct node *right;
+};
+
+struct node *newNode(int data){
+  struct node *temp = (struct node*)malloc(sizeof(struct node));
+  temp->data=data;
+  temp->left = NULL;
+  temp->right = NULL;
+  return temp;
+}
+
+struct node *insert(struct node *root, int data){
+  if(root == NULL){
+    return newNode(data);
+  }
+  
+  if(data<root->data){
+    root->left = insert(root->left, data);
+  }
+  else if(data>root->data){
+    root->right = insert(root->right, data);
+  }
+  return root;
+}
+
+struct node *minValueNode(struct node *root){
+  struct node *current = root;
+  while(current && current->left != NULL){
+    current = current->left;
+  }
+  return current;
+}
+
+
+struct node *delete(struct node *root, int key){
+  if(root==NULL){ //basecase to check if the tree is empty
+    return root;
+  }
+  if(key<root->data){ //iterate down the left side to find the element we want to delete
+    root->left = delete(root->left, key);
+  }
+  else if(key>root->data){ //iterate down the right side to find the element we want to delete
+    root->right = delete(root->right, key);
+  }
+  else{
+    if(root->left == NULL && root->right == NULL){ //the node has no childer
+      free(root);
+      return NULL;
+    }
+    else if(root->left == NULL){ //the node has only children to the right
+      struct node *temp = root->right;
+      free(root);
+      return temp;
+    }
+    else if(root->right == NULL){ //the node has only children to the left
+      struct node *temp = root->left;
+      free(root);
+      return temp;
+    }
+    
+    struct node *temp = minValueNode(root->right); //the node has both children
+    root->data = temp->data;
+    root->right = delete(root->right, temp->data);
+  }
+  return root;
+}
+
+
+void inorder(struct node *root){
+  if(root == NULL){
+    return;
+  }
+  
+  inorder(root->left);
+  printf("%d ", root->data);
+  inorder(root->right);
+}
+int main(){
+    int n, data, key;
+    struct node *root = NULL;
+    scanf("%d", &n);
+    for(int i = 0 ; i < n ; i++){
+        scanf("%d", &data);
+        root = insert(root, data);
+    }
+    scanf("%d", &key);
+    root=delete(root, key);
+    inorder(root);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Q)Problem Statement
 // John is learning about Binary Search Trees (BST) in his computer science class. He wants to create a program that allows users to delete a node with a given value from a BST and print the remaining nodes.
 // Implement a function to help him delete a node with a given value from a BST.
@@ -682,5 +796,19 @@ int main() {
 
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
