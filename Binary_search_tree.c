@@ -98,6 +98,76 @@ int main(){
 
 
 
+// You are using GCC
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node{
+    int data;
+    struct node *left, *right;
+};
+
+struct node *newNode(int data){
+    struct node *temp = (struct node *)malloc(sizeof(struct node));
+    temp->data = data;
+    temp->left = NULL;
+    temp->right = NULL;
+    return temp;
+}
+
+struct node *insert(struct node *root, int data){
+    if(root == NULL){
+        return newNode(data);
+    }
+    
+    if(data<root->data){
+        root->left = insert(root->left, data);
+    }
+    else if(data>root->data){
+        root->right = insert(root->right, data);
+    }
+    return root;
+}
+
+void kthmin(struct node *root, int k, int *count, int *result){
+    if(root == NULL || *result != -1){
+        return;
+    }
+    
+    kthmin(root->left, k, count, result);
+    (*count)++;
+    if(*count == k){
+        *result = root->data;
+        return;
+    }
+    kthmin(root->right, k, count, result);
+}
+
+int main() {
+    int data;
+    struct node *root = NULL;
+    
+    while (1) {  
+        scanf("%d", &data);
+        if (data == -1) {  
+            break;
+        }
+        root = insert(root, data);
+    }
+
+    int k;
+    scanf("%d", &k);
+
+    int count = 0;
+    int result = -1;
+    kthmin(root, k, &count, &result);
+
+    if (result != -1) {
+        printf("%d\n", result);
+    }
+
+    return 0;
+}
 
 
 
@@ -105,6 +175,80 @@ int main(){
 
 
 
+//Q) Find the successor of a target element
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node {
+  int data;
+  struct node *left;
+  struct node *right;
+};
+
+struct node *newNode(int data){
+  struct node *temp = (struct node*)malloc(sizeof(struct node));
+  temp->data = data;
+  temp->left = NULL;
+  temp->right = NULL;
+  return temp;
+}
+
+struct node *insert(struct node *node, int data){
+  if(node == NULL){
+    return newNode(data);
+  }
+  
+  if(data<node->data){
+    node->left = insert(node->left, data);
+  }
+  else if(data>node->data){
+    node->right = insert(node->right, data);
+  }
+  return node;
+}
+
+void inorder(struct node *node, int *arr, int *index){
+  if(node==NULL){
+    return;
+  }
+  
+  inorder(node->left, arr, index);
+  arr[(*index)++] = node->data;
+  inorder(node->right, arr, index);
+}
+
+int printSuccessor(int *arr, int n, int k){
+  for(int i = 0 ; i  < n ; i++){
+    if(arr[i] == k && i+1 < n){
+      return arr[i+1];
+    }
+  }
+  return -1;
+}
+
+int main(){
+  int n, data, key;
+  struct node *root = NULL;
+  scanf("%d", &n);
+  int arr[n];
+  int index = 0;
+  for(int i = 0 ; i < n ; i++){
+    scanf("%d", &data);
+    root= insert(root, data);
+  }
+  scanf("%d", &key);
+  inorder(root, &arr, &index);
+  int res = printSuccessor(&arr, n, key);
+  
+  if(res != -1){
+    printf("Successor of %d is %d", key, res);
+  }
+  else{
+    printf("Nahbro");
+  }
+}
+
+//****************************************************************************************************************************************************************************
 
 
 
