@@ -90,3 +90,71 @@ int main() {
 
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+
+struct Node* createNode(int data) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+
+struct Node* buildTree() {
+    int val;
+    scanf("%d", &val);
+    if (val == -1) {
+        return NULL;
+    }
+
+    struct Node* root = createNode(val);
+
+    root->left = buildTree();
+
+    root->right = buildTree();
+
+    return root;
+}
+void inOrder(struct Node* root) {
+    if (root == NULL)
+        return;
+    inOrder(root->left);
+    printf("%d ", root->data);
+    inOrder(root->right);
+}
+int main() {
+    struct Node* root = buildTree();
+
+    inOrder(root);
+
+    return 0;
+}
+
