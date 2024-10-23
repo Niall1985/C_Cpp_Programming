@@ -130,3 +130,71 @@ int main(){
   struct node *root = buildTree(arr, n);
   inorder(root);
 }
+
+
+
+
+// Check if is balanced 
+#include <stdio.h>
+#include <stdlib.h>
+
+// Node structure
+struct Node {
+    int data;
+    struct Node *left;
+    struct Node *right;
+};
+
+// Function to create a new node
+struct Node* newNode(int data) {
+    struct Node* node = (struct Node*)malloc(sizeof(struct Node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+    return node;
+}
+
+// Helper function to check the height of a subtree
+int checkHeight(struct Node* root) {
+    if (root == NULL) {
+        return 0; // Height of an empty tree is 0
+    }
+
+    int leftHeight = checkHeight(root->left);
+    int rightHeight = checkHeight(root->right);
+
+    if (leftHeight == -1 || rightHeight == -1) {
+        return -1; // Propagate imbalance
+    }
+
+    if (abs(leftHeight - rightHeight) > 1) {
+        return -1; // If the subtree is unbalanced
+    }
+
+    return 1 + (leftHeight > rightHeight ? leftHeight : rightHeight); // Return the height
+}
+
+// Function to check if the tree is balanced
+int isBalanced(struct Node* root) {
+    return checkHeight(root) != -1;
+}
+
+// Main function for testing
+int main() {
+    // Constructing a balanced BST manually
+    struct Node* root = newNode(10);
+    root->left = newNode(5);
+    root->right = newNode(15);
+    root->left->left = newNode(3);
+    root->left->right = newNode(7);
+    root->right->left = newNode(12);
+    root->right->right = newNode(18);
+
+    if (isBalanced(root)) {
+        printf("The tree is balanced.\n");
+    } else {
+        printf("The tree is not balanced.\n");
+    }
+
+    return 0;
+}
