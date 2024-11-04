@@ -35,7 +35,6 @@ void primMST(int graph[MAX][MAX], int V){
   for(int count = 0 ; count < V-1 ; count++){
     int u = minKey(key, mstset, V);
     mstset[u] = true;
-    
   for(int v = 0 ; v < V ; v++)
     if(graph[u][v] && !mstset[v] && graph[u][v]<key[v]){
       parent[v] = u;
@@ -58,3 +57,24 @@ int main() {
     primMST(graph, V);
     return 0;
 }
+
+
+/*
+Algorithm:
+
+Function 1: minkey function
+1. initialize a dist array to store the minimum weighted edges
+2. initialize a mstSet array to check if the vertex being processed doesn't exist in the current tree
+3. intialize a min variable to infinity and set a variable called minIndex
+4. run a for loop from 0 to < V and check if the node i being processed doesn't already exist in the graph and the weight is less than min
+5. if the conditions are satisfied, then set min = dis[i] abd set the value of i to minIndex and return it
+
+Function 2: PrimsMST function
+1. initialize a graph matrix and pass the total number of vertices V to the function
+2. intialize a parent array to track the parent of each node, set a key array and set a boolean mstSet array to check if the node being processed doesn't already exist in the graph
+3. run a for loop from 0 to V-1 and set all the keys to INT_MAX and set all mstSet values to false
+4. set key[0] to 0 and parent[0] to -1
+5. run another for loop from 0 to < V-1 and find the minimum weighet edge that has not been processed before, set mstSet to true once that edge has been found
+6. run a nested forloop from 0 to < V and check if an edge exists from u to v (graph[u][v]) and check is the edge node doesn't already exist in the graph and check if graph[u][v]<key[v]
+7. if all good then, parent[v] = u and key[v] = graph[u][v]
+*/
