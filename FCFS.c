@@ -1,5 +1,8 @@
 //follow thsi code for fcfs
 
+
+//follow thsi code for fcfs
+
 #include <stdio.h>
 
 int main(){
@@ -33,6 +36,9 @@ int main(){
         
       }
     }
+    if(at[i] > btc){
+      btc += at[i] - btc;
+    }
     btc += bt[i];
     ct[i] = btc;
     tat[i] = ct[i] - at[i];
@@ -49,6 +55,21 @@ int main(){
 }
 
 
+
+
+// 5
+// 2 0 2
+// 1 0 3
+// 3 2 6
+// 4 3 5
+// 5 4 4
+
+// P AT BT CT TAT WT
+// 1 0 3 3 3 0
+// 2 0 2 5 5 3
+// 3 2 6 11 9 3
+// 4 3 5 16 13 8
+// 5 4 4 20 16 12
 
 
 // 5
