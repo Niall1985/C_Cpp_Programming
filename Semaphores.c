@@ -152,3 +152,47 @@ int main(){
   sem_destroy(&CountingSemaphore);
   return 0;
 }
+
+
+//reader-writer
+#include <stdio.h>
+#include <semaphores.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <pthread.h>
+
+sem_t mutex;
+sem_t wrt;
+int readcount = 0;
+int shared_data = 0;
+
+void *readFunc(void *arg){
+  int readerId = *(int*)arg;
+  sem_wait(&mutex);
+  readcount++;
+  if(readcount == 1){
+    sem_wait(&wrt);
+  }
+  sem_post(&mutex);
+  
+  printf("Perform the operation\n");
+  sleep(1);
+  
+  sem_wait(mutex);
+  readcount--;
+  if(readcount == 0){
+    sem_post(&wrt);
+  }
+  sem_post(&mutex);
+  return NULL;
+}
+
+void *writerFunc(void *arg){
+  int writerID = *(int*)arg;
+  sem_wait(&wrt);
+  shared_data++;
+  printf("Writer is modifying the critical section\n");
+  sleep(1);
+  sem_post(&wrt);
+  return NULL;
+}
