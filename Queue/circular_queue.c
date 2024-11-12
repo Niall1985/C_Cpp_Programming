@@ -6,7 +6,7 @@ int front = -1;
 int rear = -1;
 
 int isFull(){
-  return (rear+1)%MAX == rear;
+  return (rear+1)%MAX == front;
 }
 
 int isEmpty(){
