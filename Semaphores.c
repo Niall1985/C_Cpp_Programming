@@ -196,3 +196,94 @@ void *writerFunc(void *arg){
   sem_post(&wrt);
   return NULL;
 }
+int main() {
+    int n_readers = 5, n_writers = 3;
+    pthread_t readers[n_readers], writers[n_writers];
+    int reader_ids[n_readers], writer_ids[n_writers];
+
+    // Initialize semaphores
+    sem_init(&mutex, 0, 1);
+    sem_init(&wrt, 0, 1);
+
+    // Create reader threads
+    for (int i = 0; i < n_readers; i++) {
+        reader_ids[i] = i + 1;
+        pthread_create(&readers[i], NULL, reader, &reader_ids[i]);
+    }
+
+    // Create writer threads
+    for (int i = 0; i < n_writers; i++) {
+        writer_ids[i] = i + 1;
+        pthread_create(&writers[i], NULL, writer, &writer_ids[i]);
+    }
+
+    // Wait for all threads to finish
+    for (int i = 0; i < n_readers; i++) {
+        pthread_join(readers[i], NULL);
+    }
+    for (int i = 0; i < n_writers; i++) {
+        pthread_join(writers[i], NULL);
+    }
+
+    // Destroy semaphores
+    sem_destroy(&mutex);
+    sem_destroy(&wrt);
+
+    return 0;
+}
+
+//dining philospher's problem
+
+#include <stdio.h>
+#include <semaphores.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <pthread.h>
+
+#define N 5
+sem_t forks[N];
+sem_t mutex;
+
+void *philosopher(void *arg){
+  int id = *(int*)arg;
+  while(1){
+    printf("Thinking\n");
+    sleep(1);
+    
+    sem_wait(&mutex);
+    sem_wait(&forks[id]);
+    sem_wait(&forks[id] % N);
+    sem_post(&mutex);
+    
+    printf("Eating\n");
+    sleep(1);
+    sem_post(&forks[id]);
+    sem_post(&forks[id] % N);
+    }
+    return NULL;
+}
+
+int main(){
+  pthread_t philosophers[N];
+  int ids[N];
+  
+  sem_init(&mutex, 0, 1);
+  
+  for(int i = 0 ; i < N ; i++){
+    sem_init(&forks[i], 0, 1);
+  }
+  
+  for(int i = 0 ; i < N ; i++){
+    ids[i] = i;
+    pthread_create(&philosophers[i], NULL, philosopher, &ids[i]);
+  }
+  
+  for(int i = 0 ; i < N ; i++){
+    pthread_join(philosophers[i], NULL);
+  }
+  
+  for(int i = 0 ; i < N ; i++){
+    sem_destroy(&forks[i]);
+  }
+  sem_destroy(&mutex);
+}
