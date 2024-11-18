@@ -6,7 +6,7 @@ int main() {
     pages = sizeof(incomingStream) / sizeof(incomingStream[0]);
 
     int temp[frames];
-    for (int i = 0; i < frames; i++) temp[i] = -1;C
+    for (int i = 0; i < frames; i++) temp[i] = -1;
 
     printf("Incoming\tFrame 1\t\tFrame 2\t\tFrame 3\n");
 
