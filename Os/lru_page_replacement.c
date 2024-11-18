@@ -1,64 +1,49 @@
 #include <stdio.h>
 
-int main() {
-    int frames[20], reference[50], pageFaults = 0;
-    int frameCount, referenceCount;
-
-    // Input number of pages and reference string
-    printf("Enter number of pages: ");
-    scanf("%d", &referenceCount);
-    printf("Enter the reference string: ");
-    for (int i = 0; i < referenceCount; i++)
-        scanf("%d", &reference[i]);
-
-    // Input number of frames
-    printf("Enter number of frames: ");
-    scanf("%d", &frameCount);
-
-    // Initialize frames to -1 (indicating empty)
-    for (int i = 0; i < frameCount; i++)
-        frames[i] = -1;
-
-    // Process each page in the reference string
-    for (int i = 0; i < referenceCount; i++) {
-        int page = reference[i], found = 0;
-
-        // Check if the page is already in the frame
-        for (int j = 0; j < frameCount; j++) {
-            if (frames[j] == page) {
-                found = 1;
-                break;
-            }
-        }
-
-        // If page is not found, handle the page fault
-        if (!found) {
-            pageFaults++;
-
-            // Find the least recently used page to replace if frames are full
-            int replaceIndex = 0, leastRecent = i;
-            for (int j = 0; j < frameCount; j++) {
-                int lastUsed = -1;
-                for (int k = i - 1; k >= 0; k--) {
-                    if (reference[k] == frames[j]) {
-                        lastUsed = k;
-                        break;
-                    }
-                }
-                if (lastUsed < leastRecent) {
-                    leastRecent = lastUsed;
-                    replaceIndex = j;
-                }
-            }
-            frames[replaceIndex] = page;
-
-            // Print the frame's current state
-            printf("\n");
-            for (int j = 0; j < frameCount; j++)
-                printf("%d\t", frames[j] != -1 ? frames[j] : -1);
-        }
+int main(){
+  
+  int pages[] = {4, 1, 2, 4, 5};
+  int page_size = sizeof(pages)/sizeof(pages[0]);
+  int frame_size = 3;
+  int frames[frame_size];
+  int time1[frame_size];
+  int pagefault = 0;
+  
+  for(int i = 0 ; i < frame_size ; i++){
+    frames[i] = -1;
+    time1[i] = 0;
+  }
+  printf("Incomig\t\tFrame 1\t\tFrame 2\t\tFrame 3\n");
+  for(int i = 0 ; i < page_size ; i++){
+    int found = 0;
+    for(int j = 0 ; j < frame_size ; j++){
+      if(frames[j] == pages[i]){
+        found = 1;
+        time1[j] = i;
+        break;
+      }
     }
-
-    printf("\nTotal Page Faults: %d\n", pageFaults);
-    return 0;
+    if(!found){
+      int lru_index = 0;
+      for(int j = 1 ; j < frame_size ; j++){
+        if(time1[j] < time1[lru_index]){
+          lru_index = j;
+        }
+      }
+      frames[lru_index] = pages[i];
+      time1[lru_index] = i;
+      pagefault++;
+    }
+    printf("%d\t\t", pages[i]);
+    for(int j = 0 ; j < frame_size ; j++){
+      if(frames[j] != -1){
+        printf("%d\t\t", frames[j]);
+      }
+      else{
+        printf("-\t\t");
+      }
+    }
+    printf("\n");
+  }
+    printf("Page Fault: %d", pagefault);
 }
