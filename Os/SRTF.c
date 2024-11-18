@@ -61,3 +61,19 @@ int main() {
 
     return 0;
 }
+
+
+/*
+Algorithm:
+1. Initialize all the elements (Process id, arrival time and burst time)
+2. Set remaining time array with the values of burst time
+3. Declare a completed var which tracks how many processes have completed their execution
+4. Create a current count to track execution time of each process
+5. While the number of processes completed is lesser than the total number of processes, run a loop continuously
+6. Create a var shortest (to check the process (index) with the shortest burst time) and initialize it to -1
+7. Create a minReamining var and set it to infinity
+8. Run a loop from 0 to n and check if the arrival time of a process is lesser or equal to the current time value and check if the remaining time value is greater than 0 and lesser than min remaining time
+9. If the above conditions are satisfied, set the value of shortest to the index being checked and set the value of minRemaining to remainingTime[i]
+10. If shortest == -1, increment the current time and break else decrement the remaining time of the shortest index's element and increment the currentTime.
+11. If remaining time of shortest = 0, increment the completed var and set the values for tat, wt and ct
+*/
