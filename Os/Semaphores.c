@@ -23,7 +23,7 @@ void wait(CountingSemaphore *sem){
 }
 
 void signal(CountingSemaphore *sem){
-  __sync_fetch_and_add(*sem->value, 1);
+  __sync_fetch_and_add(&sem->value, 1);
 }
 
 int main(){
