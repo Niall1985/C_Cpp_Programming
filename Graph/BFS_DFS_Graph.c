@@ -1,69 +1,26 @@
-// You are using GCC
+//bfs implementation
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdbool.h>
+#define MAX 10
 
-#define MAX_NODES 100
-typedef struct Node{
-    int vertex;
-    struct Node *next;
-} Node;
-
-Node *adjList[MAX_NODES];
-int visited[MAX_NODES];
-
-Node *createNode(int v){
-    Node *newNode = (Node*)malloc(sizeof(Node));
-    newNode->vertex = v;
-    newNode->next = NULL;
-    return newNode;
+void bfs(int graph[MAX][MAX], int V, int src){
+  int queue[MAX], front = 0, rear = 0;
+  bool visited[MAX] = {false};
+  
+  queue[++rear] = src;
+  visited[src] = truel
+  
+  while (front<rear){
+    int current = queue[front++];
+    printf("%d ", current);
+    for(int i = 0 ; i < V  i++){
+      if(graph[i][src] = 1 && !visited[1]){
+        visited[i] = true;
+        queue[++rear] = i;
+      }
+    }
+  }
 }
-
-void addEdge(int u, int v){
-    Node* newNode = createNode(v);
-    
-    if(adjList[u] == NULL){
-        adjList[u] = newNode;
-    }
-    else{
-        Node *temp = adjList[u];
-        while(temp->next != NULL){
-            temp = temp->next;
-        }
-        temp->next = newNode;
-    }
-}
-
-void dfs(int v){
-    visited[v] = 1;
-    printf("%d ", v);
-    
-    for(Node *temp = adjList[v] ; temp ; temp = temp->next){
-        if(!visited[temp->vertex]){
-            dfs(temp->vertex);
-        }
-    }
-}
-
-int main(){
-    int n,m,u,v,start;
-    
-    scanf("%d %d", &n, &m);
-    
-    for(int i = 0  ; i < n ; i++){
-        adjList[i] = NULL;
-        visited[i] = 0;
-    }
-    
-    for(int i = 0 ; i < m ; i++){
-        scanf("%d %d", &u, &v);
-        addEdge(u,v);
-    }
-    scanf("%d", &start);
-    
-    dfs(start);
-}
-
-
 
 // dfs implementation
 #include <stdio.h>
