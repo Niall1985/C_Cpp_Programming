@@ -105,3 +105,80 @@ Check if the total distance from src to v through u is less than dist[v].
 If it is, update dist[v] to the new distance.
 After finishing all iterations, call printSolution to display the shortest distances.
 */
+
+
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <limits.h>
+
+#define MAX 100
+
+int minDist(int dist[], bool sptSet[], int V){
+  int min = INT_MAX, minIndex;
+  for(int i = 0 ; i < V ; i++){
+    if(!sptSet[i] && dist[i] < min){
+      min = dist[i];
+      minIndex = i;
+    }
+  }
+  return minIndex;
+}
+
+void printVal(int parent[], int j) {
+    if (parent[j] == -1) {
+        printf("%d ", j);
+        return;
+    }
+    printVal(parent, parent[j]);
+    printf("%d ", j);
+}
+
+void dijikstras(int graph[MAX][MAX], int V, int src, int dest){
+  int dist[MAX];
+  bool sptSet[MAX];
+  int parent[MAX];
+  for(int i = 0 ; i < V ; i++){
+    dist[i] = INT_MAX;
+    sptSet[i] = false; 
+    parent[i] = -1;
+  }
+  dist[src] = 0;
+  
+  for(int count = 0 ; count < V-1 ; count++){
+    int u = minDist(dist, sptSet, V);
+    sptSet[u] = true;
+    for(int v = 0 ; v < V ; v++){
+      if(!sptSet[v] && graph[u][v] && dist[u] != INT_MAX && dist[u] + graph[u][v] < dist[v]){
+        dist[v] = graph[u][v] + dist[u];
+        parent[v] = u;
+      }
+    }
+  }
+  printf("Shortest path: %d\n", dist[dest]);
+  printVal(parent, dest);
+}
+
+int main(){
+  int graph[MAX][MAX];
+  int V, E;
+  scanf("%d %d", &V, &E);
+  for(int i = 0 ; i < V ; i++){
+    for(int j = 0 ; j < V ; j++){
+      graph[i][j] = 0;
+    }
+  }
+  
+  for(int i = 0 ; i < E ; i++){
+    int u, v;
+    scanf("%d %d", &u, &v);
+    graph[u][v] = 1;
+    graph[v][u] = 1;
+  }
+  
+  
+  int src, dest;
+  scanf("%d %d", &src, &dest);
+  dijikstras(graph, V, src, dest);
+  
+}
