@@ -8,13 +8,13 @@ void bfs(int graph[MAX][MAX], int V, int src){
   bool visited[MAX] = {false};
   
   queue[++rear] = src;
-  visited[src] = truel
+  visited[src] = true;
   
   while (front<rear){
     int current = queue[front++];
     printf("%d ", current);
     for(int i = 0 ; i < V  i++){
-      if(graph[i][src] = 1 && !visited[1]){
+      if(graph[i][src] = 1 && !visited[i]){
         visited[i] = true;
         queue[++rear] = i;
       }
