@@ -109,18 +109,18 @@ void oddparity1(int data_size, int input_arr[]){
 
 int main(){
   int data_size;
-  scanf("%d", &data_size); //input the size of the data_size
+  scanf("%d", &data_size); 
   
   int input_arr[data_size];
   for(int i = 0 ; i < data_size ; i++){
-    scanf("%d", &input_arr[i]); //input the data
+    scanf("%d", &input_arr[i]); 
   }
   
   int bit_choice;
-  scanf("%d", &bit_choice); //check for either 0 or 1
+  scanf("%d", &bit_choice); 
   
   char parity_choice[10];
-  scanf("%s ", parity_choice); //check for even or odd parity
+  scanf("%s ", parity_choice); 
   
   if(bit_choice == 0 && strcmp(parity_choice, "even") == 0){
     evenparity0(data_size, input_arr);
@@ -137,5 +137,30 @@ int main(){
   else{
     printf("Invalid choice");
   }
-  
+  char str2[100];
+    printf("\nData Received : ");
+    scanf("%s",str2);
+
+    count=0;
+
+    for(int i=0;i<=n;i++){
+        if(ch==0){
+            if(str2[i]=='0'){
+                count++;
+            }
+        }else{
+            if(str2[i]=='1'){
+                count++;
+            }
+        }
+    }
+
+    if(count%2==0 && strcmp(choice,"even")==0){
+        printf("No error");
+    }else if(count%2!=0 && strcmp(choice,"odd")==0){
+        printf("No error");
+    }else{
+        printf("Error!!!");
+    }
+
 }
