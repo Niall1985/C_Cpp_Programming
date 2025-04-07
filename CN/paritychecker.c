@@ -137,27 +137,27 @@ int main(){
   else{
     printf("Invalid choice");
   }
+  
   char str2[100];
-    printf("\nData Received : ");
     scanf("%s",str2);
 
-    count=0;
+    int ccount=0;
 
-    for(int i=0;i<=n;i++){
-        if(ch==0){
+    for(int i=0;i<data_size;i++){
+        if(bit_choice==0){
             if(str2[i]=='0'){
-                count++;
+                ccount++;
             }
         }else{
             if(str2[i]=='1'){
-                count++;
+                ccount++;
             }
         }
     }
-
-    if(count%2==0 && strcmp(choice,"even")==0){
+    printf("\n");
+    if(ccount%2==0 && strcmp(parity_choice,"even")==0){
         printf("No error");
-    }else if(count%2!=0 && strcmp(choice,"odd")==0){
+    }else if(ccount%2!=0 && strcmp(parity_choice,"odd")==0){
         printf("No error");
     }else{
         printf("Error!!!");
