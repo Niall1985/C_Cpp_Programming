@@ -7,16 +7,22 @@ int activitySelection(vector<int> &start, vector<int> &end) {
 
     // to store results.
     int ans = 0;
-
+    vector<int>activity;
     // to store the end time of last activity
     int finish = -1;
 
     for(int i = 0; i < start.size(); i++) {
         if (start[i] > finish) {
             finish = end[i];
+            activity.push_back(i);
             ans++;
         }
     }
+    for (int a : activity){
+      cout<<a<<" "; 
+    }
+    cout<<endl;
+    
     return ans;
 }
 
