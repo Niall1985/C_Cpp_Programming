@@ -6,7 +6,7 @@ using namespace std;
 int maxSubarraySum(vector<int>&arr){
     int res = arr[0];
     int start = 0, end = 0;
-    int tempStart = 0;
+    // int tempStart = 0;
 
     for(int i = 0 ; i < arr.size() ; i++){
         int currSum = 0;
