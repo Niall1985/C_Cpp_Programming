@@ -3,7 +3,7 @@
 
 using namespace std;
 
-// Function to solve 0/1 Knapsack
+// Function to solve 0/1 Knapsack and track items taken
 int knapsack(int W, vector<int>& values, vector<int>& weights, int n) {
     vector<vector<int>> dp(n + 1, vector<int>(W + 1, 0));
 
@@ -17,6 +17,22 @@ int knapsack(int W, vector<int>& values, vector<int>& weights, int n) {
             }
         }
     }
+
+    // Track the items taken
+    vector<int> taken(n, 0); // 0 = not taken, 1 = taken
+    int w = W;
+    for (int i = n; i > 0 && w > 0; i--) {
+        if (dp[i][w] != dp[i - 1][w]) { // item i-1 was taken
+            taken[i - 1] = 1;
+            w -= weights[i - 1];
+        }
+    }
+
+    // Print taken items
+    cout << "Items taken (1 = yes, 0 = no): ";
+    for (int x : taken) cout << x << " ";
+    cout << endl;
+
     return dp[n][W];
 }
 
