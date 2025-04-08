@@ -1,3 +1,5 @@
+#include <iostream>
+#include <vector>
 using namespace std;
 
 // Function to solve the activity selection problem
