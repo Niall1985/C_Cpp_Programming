@@ -1,24 +1,19 @@
 #include <stdio.h>
 #include <string.h>
-
 #define MAX 100
-
 int numStates, numSymbols;
-char states[MAX], symbols[MAX];
-int transition[MAX][MAX]; // Transition table
-char finalStates[MAX];
-char startState;
+char states[MAX][10], symbols[MAX];
+char transition[MAX][MAX][10];
+char finalStates[MAX][10];
+char startState[10];
 
-// Get the index of a state
-int getStateIndex(char state) {
+int getStateIndex(char *state) {
     for (int i = 0; i < numStates; i++) {
-        if (states[i] == state)
+        if (strcmp(states[i], state) == 0)
             return i;
     }
     return -1;
 }
-
-// Get the index of a symbol
 int getSymbolIndex(char symbol) {
     for (int i = 0; i < numSymbols; i++) {
         if (symbols[i] == symbol)
@@ -26,60 +21,37 @@ int getSymbolIndex(char symbol) {
     }
     return -1;
 }
-
-// Check if a state is final
-int isFinalState(char state) {
-    for (int i = 0; i < strlen(finalStates); i++) {
-        if (finalStates[i] == state)
+int isFinalState(char *state) {
+    for (int i = 0; i < numStates; i++) {
+        if (strcmp(finalStates[i], state) == 0)
             return 1;
     }
     return 0;
 }
-
 int main() {
     char w[100];
+    char currentState[10];
 
-    // Input states
-    printf("Enter number of states: ");
     scanf("%d", &numStates);
-    printf("Enter states (e.g., ABC): ");
-    scanf("%s", states);
-
-    // Input symbols
-    printf("Enter number of input symbols: ");
+    for (int i = 0; i < numStates; i++) {
+        scanf("%s", states[i]);
+    }
     scanf("%d", &numSymbols);
-    printf("Enter symbols (e.g., 01): ");
     scanf("%s", symbols);
-
-    // Input transition table
-    printf("Enter transition table:\n");
-    printf("For each state and symbol, enter the resulting state.\n");
-
     for (int i = 0; i < numStates; i++) {
         for (int j = 0; j < numSymbols; j++) {
-            char nextState;
-            printf("δ(%c, %c) = ", states[i], symbols[j]);
-            scanf(" %c", &nextState);
-            transition[i][j] = getStateIndex(nextState);
+            scanf("%s", transition[i][j]);
         }
     }
-
-    // Input final states
-    printf("Enter final states (e.g., C): ");
-    scanf("%s", finalStates);
-
-    // Input start state
-    printf("Enter start state: ");
-    scanf(" %c", &startState);
-
-    // Input string to test
-    printf("Enter string to test: ");
+    int numFinal;
+    scanf("%d", &numFinal);
+    for (int i = 0; i < numFinal; i++) {
+        scanf("%s", finalStates[i]);
+    }
+    scanf("%s", startState);
     scanf("%s", w);
-
-    // Processing the string
-    int currentState = getStateIndex(startState);
-    printf("\nTransition sequence:\n");
-    printf("%c", states[currentState]);
+    strcpy(currentState, startState);
+    printf("\nTransition sequence:\n%s", currentState);
 
     for (int i = 0; i < strlen(w); i++) {
         int symbolIndex = getSymbolIndex(w[i]);
@@ -87,29 +59,35 @@ int main() {
             printf("\nInvalid input symbol: %c\n", w[i]);
             return 1;
         }
-        currentState = transition[currentState][symbolIndex];
-        printf(" -> %c", states[currentState]);
+
+        int stateIndex = getStateIndex(currentState);
+        if (stateIndex == -1) {
+            printf("\nInvalid current state: %s\n", currentState);
+            return 1;
+        }
+
+        strcpy(currentState, transition[stateIndex][symbolIndex]);
+        printf(" -> %s", currentState);
     }
 
-    if (isFinalState(states[currentState])) {
+    if (isFinalState(currentState)) {
         printf("\n\nResult: String accepted!\n");
     } else {
         printf("\n\nResult: String rejected.\n");
     }
 
     // Print transition table
-    printf("\nTransition Table:\n  ");
+    printf("\nTransition Table:\n   ");
     for (int j = 0; j < numSymbols; j++)
-        printf("  %c", symbols[j]);
+        printf("   %c", symbols[j]);
     printf("\n");
 
     for (int i = 0; i < numStates; i++) {
-        printf("%c ", states[i]);
+        printf("%s ", states[i]);
         for (int j = 0; j < numSymbols; j++) {
-            printf("  %c", states[transition[i][j]]);
+            printf(" %3s", transition[i][j]);
         }
         printf("\n");
     }
-
     return 0;
 }
