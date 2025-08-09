@@ -91,3 +91,35 @@ int main() {
     }
     return 0;
 }
+
+
+
+
+
+
+The following relations keep track of airline flight information: 
+Flights(flno: integer, from: string, to: string, distance: integer, departs:time, arrives:time, price: 
+integer) 
+Aircraft(aid: integer, aname: string, cruisingrange: integer) 
+Certified(eid: integer, aid: integer) 
+Employees(eid: integer, ename: string, salary: integer) 
+Note that the Employees relation describes pilots and other kinds of employees as well; 
+every pilot is certified for some aircraft, and only pilots are certified to fly. 
+Write each of the following queries in SQL. 
+1. For each pilot who is certified for more than three aircraft, find the eid and the 
+maximum cruising range of the aircraft for which she or he is certified. 
+2. Find the names of pilots whose salary is less than the price of the cheapest route from 
+Los Angeles to Honolulu. 
+3. For all aircraft with cruising range over 1000 miles, find the name of the aircraft and the 
+average salary of all pilots certified for this aircraft. 
+4. Find the names of pilots certified for some Boeing aircraft. 
+5. Find the aids of all aircraft that can be used on routes from Los Angeles to Chicago. 
+6. Identify the routes that can be piloted by every pilot who makes more than $100,000. 
+7. Print the enames of pilots who can operate planes with cruising range greater than 3000 
+miles but are not certified on any Boeing aircraft. 
+8. Compute the difference between the average salary of a pilot and the average salary of 
+all employees (including pilots). 
+9. Print the name and salary of every nonpilot whose salary is more than the average 
+salary for pilots
+10. Print the names of employees who are certified only on aircrafts with cruising range 
+longer than 1000 miles
