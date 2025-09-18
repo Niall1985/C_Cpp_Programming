@@ -40,13 +40,9 @@ int num_terminals = 0, num_non_terminals = 0;
 char start_symbol;
 
 void input_grammar() {
-    printf("SLR Parse Table Construction\n");
-    printf("============================\n\n");
     
-    printf("Enter the number of productions: ");
     scanf("%d", &num_productions);
     
-    printf("Enter the start symbol: ");
     scanf(" %c", &start_symbol);
     
     // Create augmented grammar
@@ -54,9 +50,6 @@ void input_grammar() {
     grammar[0].rhs[0] = start_symbol;
     grammar[0].rhs[1] = '\0';
     
-    printf("\nEnter the productions (format: A->BC or A->a):\n");
-    printf("Use 'e' for epsilon productions\n");
-    printf("Use single characters for symbols\n\n");
     
     for(int i = 1; i <= num_productions; i++) {
         char input[20];
@@ -474,21 +467,28 @@ int main() {
     print_states();
     print_parse_table();
     
-    printf("\nSample Input Format:\n");
-    printf("Number of productions: 6\n");
-    printf("Start symbol: E\n");
-    printf("Productions:\n");
-    printf("E->E+T\n");
-    printf("E->T\n");
-    printf("T->T*F\n");
-    printf("T->F\n");
-    printf("F->(E)\n");
-    printf("F->i\n");
+    // printf("\nSample Input Format:\n");
+    // printf("Number of productions: 6\n");
+    // printf("Start symbol: E\n");
+    // printf("Productions:\n");
+    // printf("E->E+T\n");
+    // printf("E->T\n");
+    // printf("T->T*F\n");
+    // printf("T->F\n");
+    // printf("F->(E)\n");
+    // printf("F->i\n");
     
     return 0;
 }
 
-
+6
+E
+E->E+T
+E->T
+T->T*F
+T->F
+F->(E)
+F->i
 
 
 
@@ -502,405 +502,467 @@ int main() {
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_STACK 100
-#define MAX_INPUT 100
-#define MAX_RULES 50
+#define MAX_PRODS 20
+#define MAX_PROD_LEN 20
+#define MAX_STATES 50
+#define MAX_ITEMS 100
+#define MAX_SYMBOLS 20
+#define STACK_SIZE 100
 
-// Grammar productions
 typedef struct {
     char lhs;
-    char rhs[15];
-    int rhs_len;
+    char rhs[MAX_PROD_LEN];
 } Production;
 
-// Stack for parsing
 typedef struct {
-    int data[MAX_STACK];
-    int top;
-} Stack;
+    int prodIndex;
+    int dotPos;
+} Item;
 
-// Global variables
-Production grammar[MAX_RULES];
-int num_productions = 0;
-int action_table[100][256];  // ACTION table
-int goto_table[100][256];    // GOTO table
-char terminals[20];
-char non_terminals[20];
-int num_terminals = 0, num_non_terminals = 0;
-int num_states = 0;
+typedef struct {
+    Item items[MAX_ITEMS];
+    int count;
+} State;
 
-void input_grammar_and_table() {
-    printf("SLR Parser Implementation\n");
-    printf("=========================\n\n");
-    
-    printf("Enter the number of productions: ");
-    scanf("%d", &num_productions);
-    
-    printf("\nEnter the productions (format: A->BC):\n");
-    printf("Production 0 should be the augmented production (S'->S)\n");
-    
-    for(int i = 0; i < num_productions; i++) {
-        char input[20];
-        printf("Production %d: ", i);
-        scanf("%s", input);
-        
-        // Parse the production A->BC
-        char *arrow = strstr(input, "->");
-        if(arrow == NULL) {
-            printf("Invalid format! Use A->BC\n");
-            i--;
-            continue;
-        }
-        
-        // Extract LHS
-        grammar[i].lhs = input[0];
-        
-        // Extract RHS
-        strcpy(grammar[i].rhs, arrow + 2);
-        grammar[i].rhs_len = strlen(grammar[i].rhs);
-        
-        // Handle epsilon productions
-        if(strcmp(grammar[i].rhs, "e") == 0) {
-            grammar[i].rhs_len = 0;
-        }
+Production prods[MAX_PRODS];
+int prodCount = 0;
+
+char terminals[MAX_SYMBOLS];
+int termCount = 0;
+
+char nonTerminals[MAX_SYMBOLS];
+int nonTermCount = 0;
+
+State states[MAX_STATES];
+int stateCount = 0;
+
+int actionTable[MAX_STATES][MAX_SYMBOLS]; // shift: positive state+1, reduce: -prodIndex-1, accept: -999, error: 0
+int gotoTable[MAX_STATES][MAX_SYMBOLS];
+
+int follow[MAX_SYMBOLS][MAX_SYMBOLS]; // FOLLOW sets
+
+// Utility functions
+int isTerminal(char c) {
+    for(int i=0; i<termCount; i++)
+        if(terminals[i] == c) return 1;
+    return 0;
+}
+
+int isNonTerminal(char c) {
+    for(int i=0; i<nonTermCount; i++)
+        if(nonTerminals[i] == c) return 1;
+    return 0;
+}
+
+int indexOfTerminal(char c) {
+    for(int i=0; i<termCount; i++)
+        if(terminals[i] == c) return i;
+    return -1;
+}
+
+int indexOfNonTerminal(char c) {
+    for(int i=0; i<nonTermCount; i++)
+        if(nonTerminals[i] == c) return i;
+    return -1;
+}
+
+void addTerminal(char c) {
+    if(c == ' ' || c == '\t') return;
+    if(!isTerminal(c) && !isNonTerminal(c)) {
+        terminals[termCount++] = c;
     }
-    
-    // Find terminals and non-terminals
-    for(int i = 0; i < num_productions; i++) {
-        // Add LHS to non-terminals
-        int found = 0;
-        for(int j = 0; j < num_non_terminals; j++) {
-            if(non_terminals[j] == grammar[i].lhs) {
-                found = 1;
-                break;
-            }
-        }
-        if(!found) {
-            non_terminals[num_non_terminals++] = grammar[i].lhs;
-        }
-        
-        // Check RHS symbols
-        for(int k = 0; k < strlen(grammar[i].rhs); k++) {
-            char sym = grammar[i].rhs[k];
-            
-            // Check if it's non-terminal
-            int is_nt = 0;
-            for(int j = 0; j < num_productions; j++) {
-                if(grammar[j].lhs == sym) {
-                    is_nt = 1;
-                    break;
-                }
-            }
-            
-            if(!is_nt && sym != 'e') {
-                // Add to terminals
-                int found_t = 0;
-                for(int j = 0; j < num_terminals; j++) {
-                    if(terminals[j] == sym) {
-                        found_t = 1;
-                        break;
+}
+
+void addNonTerminal(char c) {
+    if(!isNonTerminal(c)) {
+        nonTerminals[nonTermCount++] = c;
+    }
+}
+
+int prodLength(int p) {
+    return strlen(prods[p].rhs);
+}
+
+int itemsEqual(Item a, Item b) {
+    return (a.prodIndex == b.prodIndex) && (a.dotPos == b.dotPos);
+}
+
+int stateContainsItem(State *s, Item it) {
+    for(int i=0; i<s->count; i++)
+        if(itemsEqual(s->items[i], it)) return 1;
+    return 0;
+}
+
+int statesEqual(State *a, State *b) {
+    if(a->count != b->count) return 0;
+    for(int i=0; i<a->count; i++) {
+        if(!stateContainsItem(b, a->items[i])) return 0;
+    }
+    return 1;
+}
+
+int findState(State *s) {
+    for(int i=0; i<stateCount; i++) {
+        if(statesEqual(&states[i], s)) return i;
+    }
+    return -1;
+}
+
+void addItem(State *s, Item it) {
+    if(!stateContainsItem(s, it)) {
+        s->items[s->count++] = it;
+    }
+}
+
+// Compute closure of LR(0) items for a state
+void closure(State *s) {
+    int added;
+    do {
+        added = 0;
+        for(int i=0; i<s->count; i++) {
+            Item it = s->items[i];
+            Production p = prods[it.prodIndex];
+            if(it.dotPos < prodLength(it.prodIndex)) {
+                char B = p.rhs[it.dotPos];
+                if(isNonTerminal(B)) {
+                    for(int j=0; j<prodCount; j++) {
+                        if(prods[j].lhs == B) {
+                            Item newItem = {j, 0};
+                            if(!stateContainsItem(s, newItem)) {
+                                s->items[s->count++] = newItem;
+                                added = 1;
+                            }
+                        }
                     }
                 }
-                if(!found_t) {
-                    terminals[num_terminals++] = sym;
+            }
+        }
+    } while(added);
+}
+
+// GOTO function: compute next state on symbol X from state s
+void goTo(State *from, char X, State *to) {
+    to->count = 0;
+    for(int i=0; i<from->count; i++) {
+        Item it = from->items[i];
+        Production p = prods[it.prodIndex];
+        if(it.dotPos < prodLength(it.prodIndex) && p.rhs[it.dotPos] == X) {
+            Item newItem = {it.prodIndex, it.dotPos + 1};
+            addItem(to, newItem);
+        }
+    }
+    closure(to);
+}
+
+// Compute FOLLOW sets for SLR
+void computeFollow() {
+    for(int i=0; i<nonTermCount; i++)
+        for(int j=0; j<termCount; j++)
+            follow[i][j] = 0;
+
+    // Add $ to FOLLOW of start symbol (augmented start is nonTerminals[nonTermCount-1] = 'Z')
+    int startIdx = indexOfNonTerminal('Z');
+    int dollarIdx = indexOfTerminal('$');
+    if(startIdx != -1 && dollarIdx != -1)
+        follow[startIdx][dollarIdx] = 1;
+
+    int changed;
+    do {
+        changed = 0;
+        for(int i=0; i<prodCount; i++) {
+            char A = prods[i].lhs;
+            int A_idx = indexOfNonTerminal(A);
+            char *rhs = prods[i].rhs;
+            int len = strlen(rhs);
+
+            for(int pos=0; pos<len; pos++) {
+                char B = rhs[pos];
+                if(isNonTerminal(B)) {
+                    int B_idx = indexOfNonTerminal(B);
+                    if(pos+1 < len) {
+                        char beta = rhs[pos+1];
+                        if(isTerminal(beta)) {
+                            int t_idx = indexOfTerminal(beta);
+                            if(follow[B_idx][t_idx] == 0) {
+                                follow[B_idx][t_idx] = 1;
+                                changed = 1;
+                            }
+                        } else if(isNonTerminal(beta)) {
+                            int beta_idx = indexOfNonTerminal(beta);
+                            for(int t=0; t<termCount; t++) {
+                                if(follow[beta_idx][t]) {
+                                    if(follow[B_idx][t] == 0) {
+                                        follow[B_idx][t] = 1;
+                                        changed = 1;
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        for(int t=0; t<termCount; t++) {
+                            if(follow[A_idx][t]) {
+                                if(follow[B_idx][t] == 0) {
+                                    follow[B_idx][t] = 1;
+                                    changed = 1;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
+    } while(changed);
+}
+
+// Helper to print stack content
+void printStack(int *stack, int top) {
+    printf("Stack: ");
+    for(int i=0; i<=top; i++) {
+        printf("%d ", stack[i]);
     }
-    
-    // Add $ to terminals
-    terminals[num_terminals++] = '$';
-    
-    printf("\nEnter the number of states in the parse table: ");
-    scanf("%d", &num_states);
-    
-    // Initialize tables
-    for(int i = 0; i < num_states; i++) {
-        for(int j = 0; j < 256; j++) {
-            action_table[i][j] = -1;  // Error
-            goto_table[i][j] = -1;    // Error
-        }
-    }
-    
-    printf("\nEnter the ACTION table:\n");
-    printf("Format: state terminal action (e.g., 0 i s5, 1 $ acc, 2 + r3)\n");
-    printf("Use 'done' to finish entering ACTION table\n");
-    
-    char input[20];
+}
+
+// Main LR parsing function
+void parseInput(char *input) {
+    int stack[STACK_SIZE];
+    int top = 0;
+    stack[0] = 0;  // initial state
+
+    int ip = 0; // input pointer
+
+    printf("\nParsing steps:\n");
+    printf("%-20s %-15s %-20s\n", "Stack", "Input", "Action");
+
     while(1) {
-        printf("ACTION entry: ");
-        scanf("%s", input);
-        if(strcmp(input, "done") == 0) break;
-        
-        int state = atoi(input);
-        char terminal;
-        char action[10];
-        scanf(" %c %s", &terminal, action);
-        
-        if(strcmp(action, "acc") == 0) {
-            action_table[state][terminal] = -2;  // Accept
-        } else if(action[0] == 's') {
-            int shift_state = atoi(action + 1);
-            action_table[state][terminal] = shift_state;  // Shift
-        } else if(action[0] == 'r') {
-            int reduce_prod = atoi(action + 1);
-            action_table[state][terminal] = -(reduce_prod + 10);  // Reduce
+        int state = stack[top];
+        char a = input[ip];
+        int aIdx = indexOfTerminal(a);
+        if(aIdx == -1) {
+            printf("Error: Unknown input symbol '%c'\n", a);
+            return;
         }
-    }
-    
-    printf("\nEnter the GOTO table:\n");
-    printf("Format: state nonterminal state (e.g., 0 E 1)\n");
-    printf("Use 'done' to finish entering GOTO table\n");
-    
-    while(1) {
-        printf("GOTO entry: ");
-        scanf("%s", input);
-        if(strcmp(input, "done") == 0) break;
-        
-        int state = atoi(input);
-        char nonterminal;
-        int goto_state;
-        scanf(" %c %d", &nonterminal, &goto_state);
-        
-        goto_table[state][nonterminal] = goto_state;
-    }
-}
 
-// Stack operations
-void init_stack(Stack *s) {
-    s->top = -1;
-}
+        int action = actionTable[state][aIdx];
 
-void push(Stack *s, int val) {
-    if(s->top < MAX_STACK - 1) {
-        s->data[++s->top] = val;
-    }
-}
+        // Print stack and input
+        printf("%-20s %-15s ", "", &input[ip]);
+        // Print stack
+        printf("\r");
+        printStack(stack, top);
+        printf(" ");
 
-int pop(Stack *s) {
-    if(s->top >= 0) {
-        return s->data[s->top--];
-    }
-    return -1;
-}
-
-int top(Stack *s) {
-    if(s->top >= 0) {
-        return s->data[s->top];
-    }
-    return -1;
-}
-
-void print_stack(Stack *s) {
-    printf("[");
-    for(int i = 0; i <= s->top; i++) {
-        printf("%d", s->data[i]);
-        if(i < s->top) printf(" ");
-    }
-    printf("]");
-}
-
-void print_step(int step, Stack *s, char *input, int input_pos, char *action) {
-    printf("%2d\t", step);
-    print_stack(s);
-    printf("\t\t%s\t\t%s\n", input + input_pos, action);
-}
-
-int slr_parse(char *input) {
-    Stack state_stack;
-    Stack symbol_stack;
-    init_stack(&state_stack);
-    init_stack(&symbol_stack);
-    
-    // Add input end marker
-    int len = strlen(input);
-    input[len] = '$';
-    input[len + 1] = '\0';
-    
-    // Initialize
-    push(&state_stack, 0);
-    int input_pos = 0;
-    int step = 1;
-    
-    printf("\nSLR Parsing Steps:\n");
-    printf("==================\n");
-    printf("Step\tStack\t\t\tInput\t\t\tAction\n");
-    printf("----\t-----\t\t\t-----\t\t\t------\n");
-    
-    while(1) {
-        int current_state = top(&state_stack);
-        char current_input = input[input_pos];
-        
-        int action = action_table[current_state][current_input];
-        char action_str[50];
-        
-        if(action == -1) {
-            sprintf(action_str, "ERROR");
-            print_step(step++, &state_stack, input, input_pos, action_str);
-            printf("\nParsing FAILED: Syntax Error\n");
-            return 0;
+        if(action == 0) {
+            printf("Error: No action defined.\n");
+            return;
         }
-        else if(action == -2) {
-            sprintf(action_str, "ACCEPT");
-            print_step(step++, &state_stack, input, input_pos, action_str);
-            printf("\nParsing SUCCESSFUL!\n");
-            return 1;
+        else if(action == -999) {
+            printf("Accept\n");
+            return;
         }
         else if(action > 0) {
-            // Shift action
-            sprintf(action_str, "Shift %d", action);
-            print_step(step++, &state_stack, input, input_pos, action_str);
-            
-            push(&state_stack, action);
-            push(&symbol_stack, current_input);
-            input_pos++;
+            // Shift
+            printf("Shift %d\n", action-1);
+            stack[++top] = aIdx + 1000; // store symbol (offset 1000 to separate symbol and state)
+            stack[++top] = action - 1;
+            ip++;
         }
         else {
-            // Reduce action
-            int prod_num = -(action + 10);
-            Production *prod = &grammar[prod_num];
-            sprintf(action_str, "Reduce by %c->%s", prod->lhs, prod->rhs);
-            print_step(step++, &state_stack, input, input_pos, action_str);
-            
-            // Pop symbols and states
-            for(int i = 0; i < prod->rhs_len; i++) {
-                pop(&state_stack);
-                pop(&symbol_stack);
-            }
-            
-            // Get goto state
-            int goto_state = top(&state_stack);
-            int next_state = goto_table[goto_state][prod->lhs];
-            
-            if(next_state == -1) {
-                printf("Error: Invalid GOTO transition\n");
-                return 0;
-            }
-            
-            push(&state_stack, next_state);
-            push(&symbol_stack, prod->lhs);
-        }
-    }
-}
+            // Reduce
+            int prodIndex = -action - 1;
+            Production p = prods[prodIndex];
+            int rhsLen = strlen(p.rhs);
 
-void print_parse_table() {
-    printf("\nSLR Parse Table:\n");
-    printf("================\n\n");
-    
-    printf("ACTION Table:\n");
-    printf("State\t");
-    for(int i = 0; i < num_terminals; i++) {
-        printf("%c\t", terminals[i]);
-    }
-    printf("\n-----\t");
-    for(int i = 0; i < num_terminals; i++) {
-        printf("----\t");
-    }
-    printf("\n");
-    
-    for(int i = 0; i < num_states; i++) {
-        printf("%d\t", i);
-        for(int j = 0; j < num_terminals; j++) {
-            int action = action_table[i][terminals[j]];
-            if(action == -1) {
-                printf("\t");
-            } else if(action == -2) {
-                printf("acc\t");
-            } else if(action > 0) {
-                printf("s%d\t", action);
-            } else {
-                printf("r%d\t", -(action + 10));
-            }
-        }
-        printf("\n");
-    }
-    
-    printf("\nGOTO Table:\n");
-    printf("State\t");
-    for(int i = 0; i < num_non_terminals; i++) {
-        if(non_terminals[i] != grammar[0].lhs) { // Skip augmented start symbol
-            printf("%c\t", non_terminals[i]);
-        }
-    }
-    printf("\n-----\t");
-    for(int i = 0; i < num_non_terminals - 1; i++) {
-        printf("----\t");
-    }
-    printf("\n");
-    
-    for(int i = 0; i < num_states; i++) {
-        printf("%d\t", i);
-        for(int j = 0; j < num_non_terminals; j++) {
-            if(non_terminals[j] != grammar[0].lhs) {
-                if(goto_table[i][non_terminals[j]] == -1) {
-                    printf("\t");
-                } else {
-                    printf("%d\t", goto_table[i][non_terminals[j]]);
+            printf("Reduce by %c->%s\n", p.lhs, p.rhs);
+
+            // Pop 2*rhsLen symbols/states from stack
+            for(int i=0; i<rhsLen*2; i++) {
+                if(top >= 0) top--;
+                else {
+                    printf("Error: Stack underflow during reduce\n");
+                    return;
                 }
             }
-        }
-        printf("\n");
-    }
-    printf("\n");
-}
 
-void print_grammar() {
-    printf("\nGrammar:\n");
-    printf("========\n");
-    for(int i = 0; i < num_productions; i++) {
-        printf("%d. %c -> %s\n", i, grammar[i].lhs, grammar[i].rhs);
+            int currState = stack[top];
+            int lhsIdx = indexOfNonTerminal(p.lhs);
+            if(lhsIdx == -1) {
+                printf("Error: Non-terminal not found in goto table\n");
+                return;
+            }
+
+            int gotoState = gotoTable[currState][lhsIdx];
+            if(gotoState == -1) {
+                printf("Error: No goto state\n");
+                return;
+            }
+
+            stack[++top] = lhsIdx + 1000;  // push lhs symbol
+            stack[++top] = gotoState;      // push goto state
+        }
     }
-    printf("\n");
 }
 
 int main() {
-    input_grammar_and_table();
-    print_grammar();
-    print_parse_table();
-    
-    char input[MAX_INPUT];
-    
-    // Interactive mode
-    printf("Interactive Parsing Mode\n");
-    printf("========================\n");
-    printf("Enter input string to parse (or 'quit' to exit):\n");
-    
-    while(1) {
-        printf("\nInput: ");
-        scanf("%s", input);
-        
-        if(strcmp(input, "quit") == 0) {
-            break;
+    printf("Enter number of productions: ");
+    scanf("%d", &prodCount);
+    getchar();
+
+    for(int i=0; i<prodCount; i++) {
+        char line[100];
+        printf("Enter production %d: ", i+1);
+        fgets(line, sizeof(line), stdin);
+
+        char *arrow = strstr(line, "->");
+        if(!arrow) {
+            printf("Invalid production format\n");
+            i--;
+            continue;
         }
-        
-        slr_parse(input);
+        prods[i].lhs = line[0];
+        strcpy(prods[i].rhs, arrow + 2);
+        int len = strlen(prods[i].rhs);
+        if(prods[i].rhs[len-1] == '\n') prods[i].rhs[len-1] = '\0';
+
+        addNonTerminal(prods[i].lhs);
+        for(int j=0; prods[i].rhs[j]; j++) {
+            char c = prods[i].rhs[j];
+            if(isupper(c)) addNonTerminal(c);
+            else addTerminal(c);
+        }
     }
-    
-    printf("\nSample Input Format:\n");
-    printf("====================\n");
-    printf("Number of productions: 7\n");
-    printf("Productions:\n");
-    printf("S->E\n");
-    printf("E->E+T\n");
-    printf("E->T\n");
-    printf("T->T*F\n");
-    printf("T->F\n");
-    printf("F->(E)\n");
-    printf("F->i\n");
-    printf("\nNumber of states: 12\n");
-    printf("\nACTION table entries:\n");
-    printf("0 i s5\n");
-    printf("0 ( s4\n");
-    printf("1 + s6\n");
-    printf("1 $ acc\n");
-    printf("... (continue with all ACTION entries)\n");
-    printf("done\n");
-    printf("\nGOTO table entries:\n");
-    printf("0 E 1\n");
-    printf("0 T 2\n");
-    printf("0 F 3\n");
-    printf("... (continue with all GOTO entries)\n");
-    printf("done\n");
-    
+
+    // Add augmented production S'->S with new start symbol Z
+    Production augmented = {'Z'};
+    augmented.rhs[0] = prods[0].lhs;
+    augmented.rhs[1] = '\0';
+    prods[prodCount++] = augmented;
+    addNonTerminal('Z');
+    addTerminal('$');
+
+    // Create initial state I0 = closure({Z->.S})
+    State I0;
+    I0.count = 1;
+    I0.items[0].prodIndex = prodCount - 1;
+    I0.items[0].dotPos = 0;
+    closure(&I0);
+
+    states[0] = I0;
+    stateCount = 1;
+
+    // Construct canonical collection of LR(0) items
+    int changed;
+    do {
+        changed = 0;
+        for(int i=0; i<stateCount; i++) {
+            State s = states[i];
+            for(int j=0; j<termCount + nonTermCount; j++) {
+                char X = (j < termCount) ? terminals[j] : nonTerminals[j - termCount];
+                State g;
+                goTo(&s, X, &g);
+                if(g.count > 0) {
+                    if(findState(&g) == -1) {
+                        states[stateCount++] = g;
+                        changed = 1;
+                    }
+                }
+            }
+        }
+    } while(changed);
+
+    // Initialize tables
+    for(int i=0; i<stateCount; i++) {
+        for(int j=0; j<termCount; j++) actionTable[i][j] = 0;
+        for(int j=0; j<nonTermCount; j++) gotoTable[i][j] = -1;
+    }
+
+    computeFollow();
+
+    // Build ACTION and GOTO tables
+    for(int i=0; i<stateCount; i++) {
+        State *s = &states[i];
+        for(int k=0; k<s->count; k++) {
+            Item it = s->items[k];
+            Production p = prods[it.prodIndex];
+
+            if(it.dotPos < prodLength(it.prodIndex)) {
+                char a = p.rhs[it.dotPos];
+                if(isTerminal(a)) {
+                    State g;
+                    goTo(s, a, &g);
+                    int t = findState(&g);
+                    if(t != -1) {
+                        int aIdx = indexOfTerminal(a);
+                        actionTable[i][aIdx] = t+1; // shift
+                    }
+                }
+            } else {
+                if(p.lhs == 'Z') {
+                    int dollarIdx = indexOfTerminal('$');
+                    actionTable[i][dollarIdx] = -999; // accept
+                } else {
+                    int lhsIdx = indexOfNonTerminal(p.lhs);
+                    for(int t=0; t<termCount; t++) {
+                        if(follow[lhsIdx][t]) {
+                            if(actionTable[i][t] != 0) {
+                                // Conflicts are not handled here
+                            }
+                            actionTable[i][t] = -(it.prodIndex + 1); // reduce
+                        }
+                    }
+                }
+            }
+        }
+        for(int j=0; j<nonTermCount; j++) {
+            State g;
+            goTo(s, nonTerminals[j], &g);
+            if(g.count > 0) {
+                int st = findState(&g);
+                if(st != -1) gotoTable[i][j] = st;
+            }
+        }
+    }
+
+    // Print ACTION and GOTO table (optional)
+    printf("\nSLR Parse Table\n");
+    printf("States |");
+    for(int i=0; i<termCount; i++) printf("  %c  |", terminals[i]);
+    printf(" || ");
+    for(int i=0; i<nonTermCount; i++) printf("  %c  |", nonTerminals[i]);
+    printf("\n---------------------------------------------------------\n");
+
+    for(int i=0; i<stateCount; i++) {
+        printf("  %2d   |", i);
+        for(int j=0; j<termCount; j++) {
+            int val = actionTable[i][j];
+            if(val == 0) printf("     |");
+            else if(val == -999) printf(" acc |");
+            else if(val > 0) printf(" s%-3d|", val-1);
+            else printf(" r%-3d|", -val - 1);
+        }
+        printf(" || ");
+        for(int j=0; j<nonTermCount; j++) {
+            if(gotoTable[i][j] == -1) printf("     |");
+            else printf("  %2d |", gotoTable[i][j]);
+        }
+        printf("\n");
+    }
+
+    char input[100];
+    printf("\nEnter input string to parse (append '$' at end): ");
+    fgets(input, sizeof(input), stdin);
+    int len = strlen(input);
+    if(input[len-1] == '\n') input[len-1] = '\0';
+
+    parseInput(input);
+
     return 0;
 }
+6
+E
+E->E+T
+E->T
+T->T*F
+T->F
+F->(E)
+F->i
+i+i*i$
