@@ -824,3 +824,13 @@ int parseInput(char *input) {
         }
     }
 }
+
+
+6
+E
+E->E+T
+E->T
+T->T*F
+T->F
+F->(E)
+F->i
