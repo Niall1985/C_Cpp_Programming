@@ -1,10 +1,5 @@
-
----
-
-Experiment 12: Simple Calculator using LEX & YACC
-
-calc.l (LEX code)
-
+// exp12
+cat calc.l
 %{
 #include "y.tab.h"
 %}
@@ -17,8 +12,7 @@ calc.l (LEX code)
 %%
 int yywrap() { return 1; }
 
-calc.y (YACC code for calculator)
-
+cat calc.y
 %{
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,207 +38,200 @@ int main() { return yyparse(); }
 int yyerror(char *s) { printf("Error: %s\n", s); return 0; }
 
 
----
 
-Experiment 13: Infix to Postfix using LEX & YACC
-
-infix.l
-
+//exp13
+cat infix.l
 %{
-#include "y.tab.h"
-%}
-
-%%
-[0-9]+      { yylval = strdup(yytext); return NUMBER; }
-[+\-*/()]   { return yytext[0]; }
-[ \t\n]     ;
-.           { return yytext[0]; }
-%%
-int yywrap() { return 1; }
-
-infix.y
-
-%{
-#include <stdio.h>
+#include "infix.tab.h"
 #include <stdlib.h>
 #include <string.h>
 %}
 
-%token NUMBER
+%%
+[0-9]+      { yylval.str = strdup(yytext); return NUMBER; }
+[+\-*/()]   { return yytext[0]; }
+[ \t]+      ;
+\n          { return '\n'; }
+.           { return yytext[0]; }
+%%
+
+int yywrap(void) { return 1; }
+
+cat infix.y
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int yylex(void);
+int yyerror(const char *s);
+%}
+
+%union {
+    char* str;
+}
+
+%token <str> NUMBER
+%type <str> expr
+
 %left '+' '-'
 %left '*' '/'
 %right UMINUS
 
 %%
-expr:
-      expr '+' expr   { printf("%s %s + ", $1, $3); }
-    | expr '-' expr   { printf("%s %s - ", $1, $3); }
-    | expr '*' expr   { printf("%s %s * ", $1, $3); }
-    | expr '/' expr   { printf("%s %s / ", $1, $3); }
-    | '-' expr %prec UMINUS { printf("%s ~ ", $2); }
-    | '(' expr ')'    { /* parentheses ignored */ }
-    | NUMBER          { printf("%s ", $1); }
+
+input:
+      /* empty */
+    | input line
     ;
+
+line:
+      expr '\n'  { printf("%s\n", $1); free($1); }
+    | '\n'       { }
+    ;
+
+expr:
+      expr '+' expr   { asprintf(&$$, "%s %s +", $1, $3); free($1); free($3); }
+    | expr '-' expr   { asprintf(&$$, "%s %s -", $1, $3); free($1); free($3); }
+    | expr '*' expr   { asprintf(&$$, "%s %s *", $1, $3); free($1); free($3); }
+    | expr '/' expr   { asprintf(&$$, "%s %s /", $1, $3); free($1); free($3); }
+    | '-' expr %prec UMINUS { asprintf(&$$, "%s neg", $2); free($2); }
+    | '(' expr ')'    { $$ = $2; }
+    | NUMBER          { $$ = $1; }
+    ;
+
 %%
-int main() { return yyparse(); }
-int yyerror(char *s) { printf("Error: %s\n", s); return 0; }
+
+int main() {
+    yyparse();
+    return 0;
+}
+
+int yyerror(const char *s) {
+    fprintf(stderr, "Error: %s\n", s);
+    return 0;
+}
 
 
----
-
-Experiment 14: Recognizing CFG Languages with LEX & YACC
-
-We must accept/reject strings based on grammar.
-
-Grammar 1: L(G) = { aⁿ bᵐ | m ≠ n }
-
-g1.l
-
+// exp14
+cat g1.l
 %{
-#include "y.tab.h"
+#include "g1.tab.h"
 %}
 
 %%
 a   { return 'a'; }
 b   { return 'b'; }
 \n  { return '\n'; }
+[ \t] ;
 .   ;
 %%
+
 int yywrap() { return 1; }
 
-g1.y
-
+cat g1.y
 %{
 #include <stdio.h>
 int acount=0, bcount=0;
 %}
 
 %%
+
 start:
-    string '\n' { 
-        if (acount != bcount) 
-            printf("Accepted: a^n b^m with n != m\n"); 
-        else 
-            printf("Rejected\n");
-        acount=0; bcount=0;
-    }
+      line_list
     ;
 
-string:
-      string 'a' { acount++; }
-    | string 'b' { bcount++; }
+line_list:
+      line_list line
     | /* empty */
     ;
+
+line:
+      a_seq b_seq '\n' {
+          if (acount != bcount)
+              printf("Accepted: a^n b^m with n != m\n");
+          else
+              printf("Rejected\n");
+          acount=0; bcount=0;
+      }
+    ;
+
+a_seq:
+      /* empty */
+    | a_seq 'a' { acount++; }
+    ;
+
+b_seq:
+      /* empty */
+    | b_seq 'b' { bcount++; }
+    ;
+
 %%
+
 int main() { return yyparse(); }
-int yyerror(char *s) { printf("Error: %s\n", s); return 0; }
+int yyerror(const char *s) { printf("Rejected\n"); return 0; }
 
 
----
-
-Grammar 2: L(G) = { ab (bbaa)ⁿ bba (ba)ⁿ | n ≥ 0 }
-
-g2.l
-
+cat g2.l
 %{
-#include "y.tab.h"
+#include "g2.tab.h"
 %}
 
 %%
 a   { return 'a'; }
 b   { return 'b'; }
 \n  { return '\n'; }
+[ \t] ;
 .   ;
 %%
+
 int yywrap() { return 1; }
 
-g2.y
+cat g2.l
+%{
+#include "g2.tab.h"
+%}
 
+%%
+a   { return 'a'; }
+b   { return 'b'; }
+\n  { return '\n'; }
+[ \t] ;
+.   ;
+%%
+
+int yywrap() { return 1; }
+student@AB1605B025:~$ cat g2.y
 %{
 #include <stdio.h>
 %}
 
 %%
+
 start:
-      'a' 'b' bbpart bbapart '\n' { printf("Accepted\n"); }
+      line_list
     ;
 
-bbpart:
+line_list:
+      line_list line
+    | /* empty */
+    ;
+
+line:
+      'a' 'b' bb_seq 'b' 'b' 'a' ba_seq '\n' { printf("Accepted\n"); }
+    ;
+
+bb_seq:
       /* empty */
-    | bbpart 'b' 'b' 'a' 'a'
+    | bb_seq 'b' 'b' 'a' 'a'
     ;
 
-bbapart:
-      'b' 'b' 'a' bapart
-    ;
-
-bapart:
+ba_seq:
       /* empty */
-    | bapart 'b' 'a'
+    | ba_seq 'b' 'a'
     ;
+
 %%
+
 int main() { return yyparse(); }
-int yyerror(char *s) { printf("Rejected\n"); return 0; }
-
-
----
-
-✅ With these .l and .y files, you can build:
-
-lex file.l
-yacc -d file.y
-cc lex.yy.c y.tab.c -o output
-./output
-
-
----
-
-Do you want me to also combine experiments 12, 13, 14 into a single .l file each (standalone without YACC), or are the paired .l + .y solutions okay for your submission?
-
-
-      %{
-#include "y.tab.h"
-%}
-
-%%
-[0-9]+      { yylval.str = strdup(yytext); return NUMBER; }
-[+\-*/()]   { return yytext[0]; }
-[ \t\n]     ;
-.           { return yytext[0]; }
-%%
-int yywrap() { return 1; }
-
-%{
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-%}
-
-%union {
-    char *str;
-}
-
-%token <str> NUMBER
-%type  <str> expr
-
-%left '+' '-'
-%left '*' '/'
-%right UMINUS
-
-%%
-expr:
-      expr '+' expr   { $$ = malloc(strlen($1)+strlen($3)+3); sprintf($$, "%s %s +", $1, $3); }
-    | expr '-' expr   { $$ = malloc(strlen($1)+strlen($3)+3); sprintf($$, "%s %s -", $1, $3); }
-    | expr '*' expr   { $$ = malloc(strlen($1)+strlen($3)+3); sprintf($$, "%s %s *", $1, $3); }
-    | expr '/' expr   { $$ = malloc(strlen($1)+strlen($3)+3); sprintf($$, "%s %s /", $1, $3); }
-    | '-' expr %prec UMINUS { $$ = malloc(strlen($2)+3); sprintf($$, "%s ~", $2); }
-    | '(' expr ')'    { $$ = $2; }
-    | NUMBER          { $$ = $1; }
-    ;
-%%
-int main() {
-    if (yyparse() == 0)
-        printf("\n");
-    return 0;
-}
-int yyerror(char *s) { printf("Error: %s\n", s); return 0; }
+int yyerror(const char *s) { printf("Rejected\n"); return 0; }
