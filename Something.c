@@ -201,3 +201,50 @@ cc lex.yy.c y.tab.c -o output
 
 Do you want me to also combine experiments 12, 13, 14 into a single .l file each (standalone without YACC), or are the paired .l + .y solutions okay for your submission?
 
+
+      %{
+#include "y.tab.h"
+%}
+
+%%
+[0-9]+      { yylval.str = strdup(yytext); return NUMBER; }
+[+\-*/()]   { return yytext[0]; }
+[ \t\n]     ;
+.           { return yytext[0]; }
+%%
+int yywrap() { return 1; }
+
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+%}
+
+%union {
+    char *str;
+}
+
+%token <str> NUMBER
+%type  <str> expr
+
+%left '+' '-'
+%left '*' '/'
+%right UMINUS
+
+%%
+expr:
+      expr '+' expr   { $$ = malloc(strlen($1)+strlen($3)+3); sprintf($$, "%s %s +", $1, $3); }
+    | expr '-' expr   { $$ = malloc(strlen($1)+strlen($3)+3); sprintf($$, "%s %s -", $1, $3); }
+    | expr '*' expr   { $$ = malloc(strlen($1)+strlen($3)+3); sprintf($$, "%s %s *", $1, $3); }
+    | expr '/' expr   { $$ = malloc(strlen($1)+strlen($3)+3); sprintf($$, "%s %s /", $1, $3); }
+    | '-' expr %prec UMINUS { $$ = malloc(strlen($2)+3); sprintf($$, "%s ~", $2); }
+    | '(' expr ')'    { $$ = $2; }
+    | NUMBER          { $$ = $1; }
+    ;
+%%
+int main() {
+    if (yyparse() == 0)
+        printf("\n");
+    return 0;
+}
+int yyerror(char *s) { printf("Error: %s\n", s); return 0; }
